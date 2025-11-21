@@ -51,91 +51,96 @@ const Index = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
-      // Parse company info
-      const companyName = (jsonData[0] as any)?.[1] || "";
-      const concessionaire = (jsonData[1] as any)?.[1] || "";
-      const broker = (jsonData[2] as any)?.[1] || "";
+      // Parse company info - data is in column B (index 1), rows 2-4 (indices 1-3)
+      const companyName = (jsonData[1] as any)?.[1] || "";
+      const concessionaire = (jsonData[2] as any)?.[1] || "";
+      const broker = (jsonData[3] as any)?.[1] || "";
 
-      // Parse demographics (rows 6-16)
+      // Parse demographics (rows 8-17 in Excel = indices 7-16)
+      // Column layout: B=age range, C-D=titular M/F, E-F=dependente M/F, I-J=total M/F, K=total, L=percentage
       const allDemographics: any[] = [];
-      for (let i = 6; i <= 16; i++) {
+      for (let i = 7; i <= 16; i++) {
         const row = jsonData[i] as any[];
-        if (!row || !row[0]) continue;
-        const ageRange = String(row[0]).trim();
+        if (!row || !row[1]) continue;
+        const ageRange = String(row[1]).trim();
         if (ageRange === "TOTAL" || ageRange === "IDADE MÉDIA:" || ageRange === "") continue;
         allDemographics.push({
           ageRange,
-          titularM: row[1] || 0,
-          titularF: row[2] || 0,
-          dependentM: row[3] || 0,
-          dependentF: row[4] || 0,
-          agregadoM: row[5] || 0,
-          agregadoF: row[6] || 0,
-          totalM: row[7] || 0,
-          totalF: row[8] || 0,
-          total: row[9] || 0,
-          percentage: row[10] || "0%",
+          titularM: row[2] || 0,
+          titularF: row[3] || 0,
+          dependentM: row[4] || 0,
+          dependentF: row[5] || 0,
+          agregadoM: 0,
+          agregadoF: 0,
+          totalM: row[8] || 0,
+          totalF: row[9] || 0,
+          total: row[10] || 0,
+          percentage: row[11] || "0%",
         });
       }
 
-      // Parse plans WITH copay (rows 26-33, array index starts at 0)
+      // Parse plans WITH copay (rows 27-34 in Excel = indices 26-33)
+      // Column layout: B=name, E=ANS code, F=per capita, G=estimated invoice
       const allPlansWithCopay: any[] = [];
       for (let i = 26; i <= 33; i++) {
         const row = jsonData[i] as any[];
-        if (!row || !row[0]) continue;
-        const planName = String(row[0]).trim();
+        if (!row || !row[1]) continue;
+        const planName = String(row[1]).trim();
         if (!planName.startsWith("KLINI")) continue;
         allPlansWithCopay.push({
           name: planName,
-          ansCode: String(row[3] || '').trim(),
-          perCapita: parseCurrency(row[4]) || 0,
-          estimatedInvoice: parseCurrency(row[5]) || 0,
+          ansCode: String(row[4] || '').trim(),
+          perCapita: parseCurrency(row[5]) || 0,
+          estimatedInvoice: parseCurrency(row[6]) || 0,
         });
       }
 
-      // Parse age-based pricing WITH copay (rows 42-51, array index starts at 0)
+      // Parse age-based pricing WITH copay (header in row 40 = index 39, data rows 43-52 = indices 42-51)
+      // Header starts at column 2 (index 1)
       const copayAgeHeader = jsonData[39] as any[];
-      const copayPlanNames = copayAgeHeader.slice(1).filter((name: string) => name && String(name).trim() !== "");
+      const copayPlanNames = copayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingCopay: any[] = [];
       for (let i = 42; i <= 51; i++) {
         const row = jsonData[i] as any[];
-        if (!row || !row[0]) continue;
-        const ageRange = String(row[0]).trim();
+        if (!row || !row[1]) continue;
+        const ageRange = String(row[1]).trim();
         if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
         const pricing: any = { ageRange };
         copayPlanNames.forEach((planName: string, idx: number) => {
-          pricing[planName] = parseCurrency(row[idx + 1]) || 0;
+          pricing[planName] = parseCurrency(row[idx + 2]) || 0;
         });
         allAgeBasedPricingCopay.push(pricing);
       }
 
-      // Parse plans WITHOUT copay (rows 60-67, array index starts at 0)
+      // Parse plans WITHOUT copay (rows 61-68 in Excel = indices 60-67)
+      // Column layout: B=name, E=ANS code, F=per capita, G=estimated invoice
       const allPlansWithoutCopay: any[] = [];
       for (let i = 60; i <= 67; i++) {
         const row = jsonData[i] as any[];
-        if (!row || !row[0]) continue;
-        const planName = String(row[0]).trim();
+        if (!row || !row[1]) continue;
+        const planName = String(row[1]).trim();
         if (!planName.startsWith("KLINI")) continue;
         allPlansWithoutCopay.push({
           name: planName,
-          ansCode: String(row[3] || '').trim(),
-          perCapita: parseCurrency(row[4]) || 0,
-          estimatedInvoice: parseCurrency(row[5]) || 0,
+          ansCode: String(row[4] || '').trim(),
+          perCapita: parseCurrency(row[5]) || 0,
+          estimatedInvoice: parseCurrency(row[6]) || 0,
         });
       }
 
-      // Parse age-based pricing WITHOUT copay (rows 77-86, array index starts at 0)
+      // Parse age-based pricing WITHOUT copay (header in row 75 = index 74, data rows 78-87 = indices 77-86)
+      // Header starts at column 2 (index 1)
       const noCopayAgeHeader = jsonData[74] as any[];
-      const noCopayPlanNames = noCopayAgeHeader.slice(1).filter((name: string) => name && String(name).trim() !== "");
+      const noCopayPlanNames = noCopayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingNoCopay: any[] = [];
       for (let i = 77; i <= 86; i++) {
         const row = jsonData[i] as any[];
-        if (!row || !row[0]) continue;
-        const ageRange = String(row[0]).trim();
+        if (!row || !row[1]) continue;
+        const ageRange = String(row[1]).trim();
         if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
         const pricing: any = { ageRange };
         noCopayPlanNames.forEach((planName: string, idx: number) => {
-          pricing[planName] = parseCurrency(row[idx + 1]) || 0;
+          pricing[planName] = parseCurrency(row[idx + 2]) || 0;
         });
         allAgeBasedPricingNoCopay.push(pricing);
       }
