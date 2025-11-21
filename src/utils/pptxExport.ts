@@ -22,7 +22,7 @@ const formatPercentage = (value: any): string => {
   return `${Math.round(num * 100)}%`;
 };
 
-export const exportToPPTX = async (data: ExportData) => {
+export const exportToPPTX = async (data: ExportData, coverImage?: string | null) => {
   const pptx = new pptxgen();
 
   // Set portrait layout: 20.99cm x 29.704cm (8.26" x 11.69")
@@ -34,89 +34,123 @@ export const exportToPPTX = async (data: ExportData) => {
   const kliniOrange = "F7931E";
   const lightTeal = "B8D4D3";
 
-  // Slide 1: Capa customizada Klini
+  // Slide 1: Capa com imagem de fundo ou design padrão
   const slide1 = pptx.addSlide();
   
-  // Background teal
-  slide1.background = { color: kliniTeal };
-  
-  // Logo Klini no topo (texto temporário até adicionar imagem)
-  slide1.addText("klini saúde", {
-    x: 2.5,
-    y: 2.5,
-    w: 3.26,
-    h: 1.0,
-    fontSize: 48,
-    bold: true,
-    color: "FFFFFF",
-    align: "center",
-  });
+  if (coverImage) {
+    // Se o usuário fez upload de uma imagem, usar ela como capa completa
+    slide1.addImage({
+      data: coverImage,
+      x: 0,
+      y: 0,
+      w: 8.26,
+      h: 11.69,
+      sizing: { type: "cover" }
+    });
+  } else {
+    // Caso contrário, usar o design padrão
+    // Background gradient para simular a capa Klini
+    slide1.background = { color: "1D7874" };
+    
+    // Adicionar elementos da capa manualmente para replicar o design
+    // Círculo decorativo (simulando o Rio de Janeiro ao fundo)
+    slide1.addShape(pptx.ShapeType.ellipse, {
+      x: 1.5,
+      y: 3.0,
+      w: 5.0,
+      h: 5.0,
+      fill: { color: "164E4B", transparency: 30 },
+      line: { type: "none" }
+    });
 
-  // Título "PROPOSTA COMERCIAL" - caixa branca
-  slide1.addShape(pptx.ShapeType.rect, {
-    x: 0.5,
-    y: 6.8,
-    w: 7.26,
-    h: 1.2,
-    fill: { color: "FFFFFF" },
-    line: { type: "none" }
-  });
-  
-  slide1.addText("PROPOSTA COMERCIAL", {
-    x: 0.5,
-    y: 6.9,
-    w: 7.26,
-    h: 1,
-    fontSize: 36,
-    bold: true,
-    color: kliniTeal,
-    align: "center",
-    valign: "middle"
-  });
+    // Logo "klini saúde" no topo
+    slide1.addText([
+      { text: "klini", options: { fontSize: 72, bold: true, color: "FFFFFF" } }
+    ], {
+      x: 1.8,
+      y: 1.8,
+      w: 4.66,
+      h: 1.5,
+      align: "center"
+    });
+    
+    slide1.addText([
+      { text: "saúde", options: { fontSize: 48, bold: false, color: "FFFFFF" } }
+    ], {
+      x: 2.3,
+      y: 2.8,
+      w: 3.66,
+      h: 1.0,
+      align: "center"
+    });
 
-  // Data - caixa laranja
-  const currentDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-  slide1.addShape(pptx.ShapeType.rect, {
-    x: 4.5,
-    y: 8.3,
-    w: 3.0,
-    h: 0.7,
-    fill: { color: kliniOrange },
-    line: { type: "none" }
-  });
-  
-  slide1.addText(currentDate.toUpperCase(), {
-    x: 4.5,
-    y: 8.3,
-    w: 3.0,
-    h: 0.7,
-    fontSize: 18,
-    color: "FFFFFF",
-    align: "center",
-    valign: "middle",
-    italic: true
-  });
+    // Caixa branca "PROPOSTA COMERCIAL"
+    slide1.addShape(pptx.ShapeType.rect, {
+      x: 0.5,
+      y: 6.8,
+      w: 7.26,
+      h: 1.0,
+      fill: { color: "FFFFFF" },
+      line: { type: "none" }
+    });
+    
+    slide1.addText("PROPOSTA COMERCIAL", {
+      x: 0.5,
+      y: 6.85,
+      w: 7.26,
+      h: 0.9,
+      fontSize: 32,
+      bold: true,
+      color: kliniTeal,
+      align: "center",
+      valign: "middle"
+    });
 
-  // Versão e ANS no rodapé
-  slide1.addText("V2.00/070251.3.4", {
-    x: 0.3,
-    y: 11.3,
-    w: 2.0,
-    h: 0.3,
-    fontSize: 8,
-    color: "FFFFFF",
-    align: "left",
-  });
-  
-  slide1.addText("ANS - Nº 42.202-9", {
-    x: 6.3,
-    y: 11.3,
-    w: 1.7,
-    h: 0.3,
-    fontSize: 8,
-    color: "FFFFFF",
-    align: "right",
-  });
+    // Caixa laranja com data
+    const currentDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+    slide1.addShape(pptx.ShapeType.rect, {
+      x: 4.7,
+      y: 8.0,
+      w: 2.8,
+      h: 0.6,
+      fill: { color: kliniOrange },
+      line: { type: "none" }
+    });
+    
+    slide1.addText(currentDate.toUpperCase(), {
+      x: 4.7,
+      y: 8.05,
+      w: 2.8,
+      h: 0.5,
+      fontSize: 16,
+      color: "FFFFFF",
+      align: "center",
+      valign: "middle",
+      italic: true
+    });
+
+    // Versão no rodapé esquerdo
+    slide1.addText("V2.00/070251.3.4", {
+      x: 0.3,
+      y: 11.35,
+      w: 2.0,
+      h: 0.25,
+      fontSize: 7,
+      color: "FFFFFF",
+      align: "left",
+    });
+    
+    // ANS no rodapé direito
+    slide1.addText("ANS - Nº 42.202-9", {
+      x: 6.0,
+      y: 11.35,
+      w: 2.0,
+      h: 0.25,
+      fontSize: 7,
+      color: "FFFFFF",
+      align: "right",
+    });
+  }
 
   // Slide 2: Informações da Empresa + Demografia
   const slide2 = pptx.addSlide();

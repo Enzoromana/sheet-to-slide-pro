@@ -11,6 +11,7 @@ import { DemographicsTable } from "@/components/DemographicsTable";
 import { CompanyHeader } from "@/components/CompanyHeader";
 import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
 import { LogoUpload } from "@/components/LogoUpload";
+import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 
 interface ParsedData {
@@ -29,6 +30,7 @@ interface ParsedData {
 const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [logo, setLogo] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,7 +186,7 @@ const Index = () => {
         description: "Aguarde enquanto preparamos sua apresentação.",
       });
 
-      await exportToPPTX(parsedData);
+      await exportToPPTX(parsedData, coverImage);
 
       toast({
         title: "PowerPoint gerado com sucesso!",
@@ -264,6 +266,16 @@ const Index = () => {
     }
   };
 
+  const handleCoverImageChange = (imageDataUrl: string | null) => {
+    setCoverImage(imageDataUrl);
+    if (imageDataUrl) {
+      toast({
+        title: "Imagem da capa carregada!",
+        description: "A capa personalizada será usada no PowerPoint.",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/10">
       <div className="container mx-auto p-8">
@@ -286,7 +298,7 @@ const Index = () => {
 
           <Card className="p-8 backdrop-blur-sm bg-card/50 border-2">
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="file-upload" className="block mb-2 text-sm font-medium">
                     Upload de Planilha Excel
@@ -316,6 +328,7 @@ const Index = () => {
                 </div>
 
                 <LogoUpload onLogoChange={handleLogoChange} currentLogo={logo} />
+                <CoverImageUpload onImageChange={handleCoverImageChange} currentImage={coverImage} />
               </div>
 
               {parsedData && (
