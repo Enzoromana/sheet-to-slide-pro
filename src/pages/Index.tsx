@@ -78,9 +78,9 @@ const Index = () => {
         });
       }
 
-      // Parse plans WITH copay (rows 22-29, considering row 21 is header "PLANOS COM COPARTICIPAÇÃO")
+      // Parse plans WITH copay (rows 26-33, array index starts at 0)
       const allPlansWithCopay: any[] = [];
-      for (let i = 23; i <= 30; i++) {
+      for (let i = 26; i <= 33; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[0]) continue;
         const planName = String(row[0]).trim();
@@ -93,11 +93,11 @@ const Index = () => {
         });
       }
 
-      // Parse age-based pricing WITH copay (rows 37-46)
-      const copayAgeHeader = jsonData[36] as any[];
+      // Parse age-based pricing WITH copay (rows 42-51, array index starts at 0)
+      const copayAgeHeader = jsonData[39] as any[];
       const copayPlanNames = copayAgeHeader.slice(1).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingCopay: any[] = [];
-      for (let i = 38; i <= 47; i++) {
+      for (let i = 42; i <= 51; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[0]) continue;
         const ageRange = String(row[0]).trim();
@@ -109,9 +109,9 @@ const Index = () => {
         allAgeBasedPricingCopay.push(pricing);
       }
 
-      // Parse plans WITHOUT copay (rows 56-63, considering row 55 is header "PLANOS SEM COPARTICIPAÇÃO")
+      // Parse plans WITHOUT copay (rows 60-67, array index starts at 0)
       const allPlansWithoutCopay: any[] = [];
-      for (let i = 57; i <= 64; i++) {
+      for (let i = 60; i <= 67; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[0]) continue;
         const planName = String(row[0]).trim();
@@ -124,11 +124,11 @@ const Index = () => {
         });
       }
 
-      // Parse age-based pricing WITHOUT copay (rows 71-80)
-      const noCopayAgeHeader = jsonData[70] as any[];
+      // Parse age-based pricing WITHOUT copay (rows 77-86, array index starts at 0)
+      const noCopayAgeHeader = jsonData[74] as any[];
       const noCopayPlanNames = noCopayAgeHeader.slice(1).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingNoCopay: any[] = [];
-      for (let i = 72; i <= 81; i++) {
+      for (let i = 77; i <= 86; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[0]) continue;
         const ageRange = String(row[0]).trim();
