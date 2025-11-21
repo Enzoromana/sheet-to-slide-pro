@@ -13,6 +13,7 @@ import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
 import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 import { DEFAULT_COVER_IMAGE } from "@/utils/defaultCoverImage";
+import { KLINI_LOGO } from "@/assets/kliniLogo";
 
 interface ParsedData {
   companyName: string;
@@ -274,7 +275,7 @@ const Index = () => {
             <div className="flex justify-center mb-6">
               <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
                 <img 
-                  src="/src/assets/logo-klini.webp" 
+                  src={KLINI_LOGO}
                   alt="Klini Logo" 
                   className="h-20 w-auto"
                 />

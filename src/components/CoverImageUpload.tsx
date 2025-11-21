@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { Upload, X, RefreshCw } from "lucide-react";
+import { Upload, Eye, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface CoverImageUploadProps {
   onImageChange: (imageDataUrl: string | null) => void;
@@ -9,6 +15,7 @@ interface CoverImageUploadProps {
 
 export const CoverImageUpload = ({ onImageChange, currentImage }: CoverImageUploadProps) => {
   const [preview, setPreview] = useState<string | null>(currentImage);
+  const [showFullView, setShowFullView] = useState(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -31,49 +38,55 @@ export const CoverImageUpload = ({ onImageChange, currentImage }: CoverImageUplo
   const handleRemoveImage = () => {
     setPreview(null);
     onImageChange(null);
+    setShowFullView(false);
   };
 
   return (
-    <div className="h-full">
-      {preview ? (
-        <div className="space-y-3 h-full flex flex-col">
-          <div className="border-2 border-[#1D7874]/20 rounded-xl overflow-hidden shadow-md flex-1">
-            <img 
-              src={preview} 
-              alt="Capa preview" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
+    <>
+      <div className="h-32 space-y-2">
+        <input
+          id="cover-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+        
+        {preview ? (
+          // Quando tem imagem - mostrar botões de ação
+          <div className="h-full flex flex-col gap-2">
             <Button
-              onClick={() => document.getElementById('cover-upload')?.click()}
+              onClick={() => setShowFullView(true)}
               variant="outline"
-              size="sm"
-              className="border-[#1D7874] text-[#1D7874] hover:bg-[#1D7874] hover:text-white transition-all"
+              className="flex-1 border-2 border-[#1D7874] text-[#1D7874] hover:bg-[#1D7874] hover:text-white transition-all"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Trocar
+              <Eye className="h-5 w-5 mr-2" />
+              Visualizar Capa
             </Button>
-            <Button
-              onClick={handleRemoveImage}
-              variant="outline"
-              size="sm"
-              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Remover
-            </Button>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={() => document.getElementById('cover-upload')?.click()}
+                variant="outline"
+                size="sm"
+                className="border-[#1D7874] text-[#1D7874] hover:bg-[#1D7874] hover:text-white transition-all"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Trocar
+              </Button>
+              <Button
+                onClick={handleRemoveImage}
+                variant="outline"
+                size="sm"
+                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Remover
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="h-32">
-          <input
-            id="cover-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
+        ) : (
+          // Quando não tem imagem - mostrar upload
           <Button
             onClick={() => document.getElementById('cover-upload')?.click()}
             variant="outline"
@@ -89,15 +102,47 @@ export const CoverImageUpload = ({ onImageChange, currentImage }: CoverImageUplo
               </div>
             </div>
           </Button>
-        </div>
-      )}
-      <input
-        id="cover-upload"
-        type="file"
-        accept="image/*"
-        onChange={handleImageUpload}
-        className="hidden"
-      />
-    </div>
+        )}
+      </div>
+
+      {/* Modal de Visualização Completa */}
+      <Dialog open={showFullView} onOpenChange={setShowFullView}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="text-2xl font-bold text-[#1D7874]">
+              📄 Visualização da Capa
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-6 overflow-auto">
+            {preview && (
+              <img 
+                src={preview} 
+                alt="Capa completa" 
+                className="w-full h-auto rounded-lg shadow-lg"
+              />
+            )}
+          </div>
+          <div className="p-6 pt-0 flex gap-3">
+            <Button
+              onClick={() => {
+                setShowFullView(false);
+                document.getElementById('cover-upload')?.click();
+              }}
+              className="flex-1 bg-[#1D7874] hover:bg-[#164e4b] text-white"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Trocar Imagem
+            </Button>
+            <Button
+              onClick={() => setShowFullView(false)}
+              variant="outline"
+              className="flex-1"
+            >
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
