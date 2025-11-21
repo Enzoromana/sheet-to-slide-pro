@@ -37,13 +37,21 @@ export const exportToPPTX = async (data: ExportData) => {
   // Slide 1: Capa customizada Klini
   const slide1 = pptx.addSlide();
   
-  // Background image - usando a imagem da capa Klini
-  // Nota: A imagem precisa estar em base64 ou URL acessível
-  slide1.background = { 
-    path: "https://i.imgur.com/placeholder.jpg", // Substituir pela imagem real do Klini
-    sizing: { type: "cover" }
-  };
+  // Background teal
+  slide1.background = { color: kliniTeal };
   
+  // Logo Klini no topo (texto temporário até adicionar imagem)
+  slide1.addText("klini saúde", {
+    x: 2.5,
+    y: 2.5,
+    w: 3.26,
+    h: 1.0,
+    fontSize: 48,
+    bold: true,
+    color: "FFFFFF",
+    align: "center",
+  });
+
   // Título "PROPOSTA COMERCIAL" - caixa branca
   slide1.addShape(pptx.ShapeType.rect, {
     x: 0.5,
@@ -61,7 +69,7 @@ export const exportToPPTX = async (data: ExportData) => {
     h: 1,
     fontSize: 36,
     bold: true,
-    color: "1D7874",
+    color: kliniTeal,
     align: "center",
     valign: "middle"
   });
@@ -88,9 +96,6 @@ export const exportToPPTX = async (data: ExportData) => {
     valign: "middle",
     italic: true
   });
-
-  // Logo Klini no topo (se disponível como imagem)
-  // slide1.addImage({ path: "logo-klini.png", x: 3.0, y: 2.0, w: 2.26, h: 1.0 });
 
   // Versão e ANS no rodapé
   slide1.addText("V2.00/070251.3.4", {
