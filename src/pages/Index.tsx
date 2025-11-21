@@ -10,7 +10,6 @@ import { PricingTable } from "@/components/PricingTable";
 import { DemographicsTable } from "@/components/DemographicsTable";
 import { CompanyHeader } from "@/components/CompanyHeader";
 import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
-import { LogoUpload } from "@/components/LogoUpload";
 import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 import { DEFAULT_COVER_IMAGE } from "@/utils/defaultCoverImage";
@@ -30,7 +29,6 @@ interface ParsedData {
 
 const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
-  const [logo, setLogo] = useState<string | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER_IMAGE);
   const { toast } = useToast();
 
@@ -257,16 +255,6 @@ const Index = () => {
     }
   };
 
-  const handleLogoChange = (logoDataUrl: string | null) => {
-    setLogo(logoDataUrl);
-    if (logoDataUrl) {
-      toast({
-        title: "Logo carregada!",
-        description: "A logo foi adicionada à sua proposta.",
-      });
-    }
-  };
-
   const handleCoverImageChange = (imageDataUrl: string | null) => {
     setCoverImage(imageDataUrl);
     if (imageDataUrl) {
@@ -278,114 +266,142 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/10">
-      <div className="container mx-auto p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="text-center space-y-4">
-            <div className="flex justify-center mb-4">
-              <img 
-                src="/src/assets/logo-klini.webp" 
-                alt="Klini Logo" 
-                className="h-16 w-auto"
-              />
+    <div className="min-h-screen bg-gradient-to-br from-[#1D7874] via-[#1a6b67] to-[#164e4b]">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto space-y-8">
+          {/* Header Section */}
+          <div className="text-center space-y-6 py-8">
+            <div className="flex justify-center mb-6">
+              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+                <img 
+                  src="/src/assets/logo-klini.webp" 
+                  alt="Klini Logo" 
+                  className="h-20 w-auto"
+                />
+              </div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold text-white drop-shadow-lg">
               Sistema de Cotação Klini Saúde
             </h1>
-            <p className="text-muted-foreground text-lg">
-              Importe sua planilha e gere propostas profissionais em PDF ou PowerPoint
+            <p className="text-xl text-white/90 font-light max-w-2xl mx-auto">
+              Transforme suas planilhas em propostas profissionais com apenas alguns cliques
             </p>
           </div>
 
-          <Card className="p-8 backdrop-blur-sm bg-card/50 border-2">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="file-upload" className="block mb-2 text-sm font-medium">
-                    Upload de Planilha Excel
+          {/* Main Upload Card */}
+          <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl">
+            <div className="p-8 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Excel Upload */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    📊 Planilha de Cotação
                   </label>
-                  <div className="relative">
-                    <input
-                      id="file-upload"
-                      type="file"
-                      accept=".xlsx,.xls"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    <Button
-                      onClick={() => document.getElementById('file-upload')?.click()}
-                      variant="outline"
-                      className="w-full h-24 border-2 border-dashed hover:border-primary transition-colors"
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <Upload className="h-8 w-8" />
-                        <span>Clique para fazer upload</span>
-                        <span className="text-xs text-muted-foreground">
-                          Arquivos .xlsx ou .xls
-                        </span>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept=".xlsx,.xls"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    variant="outline"
+                    className="w-full h-32 border-2 border-dashed border-[#1D7874] hover:border-[#F7931E] hover:bg-[#FFF8F0] transition-all duration-300 group"
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="p-3 bg-[#1D7874] group-hover:bg-[#F7931E] rounded-full transition-colors duration-300">
+                        <Upload className="h-8 w-8 text-white" />
                       </div>
-                    </Button>
-                  </div>
+                      <div className="space-y-1">
+                        <p className="font-semibold text-gray-700">Clique para fazer upload</p>
+                        <p className="text-xs text-gray-500">Arquivos Excel (.xlsx ou .xls)</p>
+                      </div>
+                    </div>
+                  </Button>
                 </div>
 
-                <LogoUpload onLogoChange={handleLogoChange} currentLogo={logo} />
-                <CoverImageUpload onImageChange={handleCoverImageChange} currentImage={coverImage} />
+                {/* Cover Upload */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    🎨 Capa da Proposta
+                  </label>
+                  <CoverImageUpload onImageChange={handleCoverImageChange} currentImage={coverImage} />
+                </div>
               </div>
 
+              {/* Export Buttons */}
               {parsedData && (
-                <div className="flex gap-4 pt-4 border-t">
-                  <Button
-                    onClick={handleExportPDF}
-                    className="flex-1 h-12 gap-2"
-                    variant="default"
-                  >
-                    <Download className="h-5 w-5" />
-                    Exportar para PDF
-                  </Button>
-                  <Button
-                    onClick={handleExportPPTX}
-                    className="flex-1 h-12 gap-2"
-                    variant="secondary"
-                  >
-                    <Presentation className="h-5 w-5" />
-                    Exportar para PowerPoint
-                  </Button>
+                <div className="pt-6 border-t border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button
+                      onClick={handleExportPDF}
+                      className="h-14 bg-gradient-to-r from-[#1D7874] to-[#164e4b] hover:from-[#164e4b] hover:to-[#1D7874] text-white shadow-lg hover:shadow-xl transition-all duration-300 text-lg font-semibold"
+                      size="lg"
+                    >
+                      <Download className="h-6 w-6 mr-3" />
+                      Exportar para PDF
+                    </Button>
+                    <Button
+                      onClick={handleExportPPTX}
+                      className="h-14 bg-gradient-to-r from-[#F7931E] to-[#e67e0a] hover:from-[#e67e0a] hover:to-[#F7931E] text-white shadow-lg hover:shadow-xl transition-all duration-300 text-lg font-semibold"
+                      size="lg"
+                    >
+                      <Presentation className="h-6 w-6 mr-3" />
+                      Exportar para PowerPoint
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
           </Card>
 
+          {/* Preview Section */}
           {parsedData && (
-            <div id="proposal-content" className="space-y-6">
-              <CompanyHeader
-                companyName={parsedData.companyName}
-                concessionaire={parsedData.concessionaire}
-                broker={parsedData.broker}
-                emissionDate={parsedData.emissionDate}
-                validityDate={parsedData.validityDate}
-              />
+            <div id="proposal-content" className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="text-center py-4">
+                <h2 className="text-3xl font-bold text-white drop-shadow-lg">
+                  📋 Pré-visualização da Proposta
+                </h2>
+              </div>
 
-              <Card className="p-6 backdrop-blur-sm bg-card/50">
-                <h2 className="text-2xl font-bold mb-4 text-primary">Demografia</h2>
+              <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl overflow-hidden">
+                <CompanyHeader
+                  companyName={parsedData.companyName}
+                  concessionaire={parsedData.concessionaire}
+                  broker={parsedData.broker}
+                  emissionDate={parsedData.emissionDate}
+                  validityDate={parsedData.validityDate}
+                />
+              </Card>
+
+              <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
+                <h2 className="text-2xl font-bold mb-6 text-[#1D7874] flex items-center gap-3">
+                  <span className="text-3xl">👥</span> Demografia
+                </h2>
                 <DemographicsTable data={parsedData.demographics} />
               </Card>
 
               {parsedData.plansWithCopay.length > 0 && (
-                <PricingTable 
-                  title="Planos com Coparticipação"
-                  plans={parsedData.plansWithCopay}
-                />
+                <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
+                  <PricingTable 
+                    title="Planos com Coparticipação"
+                    plans={parsedData.plansWithCopay}
+                  />
+                </Card>
               )}
 
               {parsedData.plansWithoutCopay.length > 0 && (
-                <PricingTable 
-                  title="Planos sem Coparticipação"
-                  plans={parsedData.plansWithoutCopay}
-                />
+                <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
+                  <PricingTable 
+                    title="Planos sem Coparticipação"
+                    plans={parsedData.plansWithoutCopay}
+                  />
+                </Card>
               )}
 
               {parsedData.ageBasedPricingCopay.length > 0 && (
-                <Card className="p-6 backdrop-blur-sm bg-card/50">
+                <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
                   <AgeBasedPricingTable 
                     data={parsedData.ageBasedPricingCopay}
                     title="Valores por Faixa Etária - COM Coparticipação"
@@ -394,7 +410,7 @@ const Index = () => {
               )}
 
               {parsedData.ageBasedPricingNoCopay.length > 0 && (
-                <Card className="p-6 backdrop-blur-sm bg-card/50">
+                <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
                   <AgeBasedPricingTable 
                     data={parsedData.ageBasedPricingNoCopay}
                     title="Valores por Faixa Etária - SEM Coparticipação"
@@ -402,13 +418,13 @@ const Index = () => {
                 </Card>
               )}
 
-              <Card className="p-6 backdrop-blur-sm bg-card/50 text-center">
-                <p className="text-sm text-muted-foreground">
+              <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8 text-center">
+                <p className="text-sm text-gray-600 leading-relaxed">
                   Esta proposta foi elaborada levando em consideração as informações fornecidas através
                   do formulário de cotação enviado pela Corretora. No caso de implantação do contrato,
                   qualquer incompatibilidade implicará na inviabilidade ou reanálise da proposta.
                 </p>
-                <p className="text-xs text-muted-foreground mt-4">ANS - Nº 42.202-9</p>
+                <p className="text-xs text-gray-500 mt-4 font-semibold">ANS - Nº 42.202-9</p>
               </Card>
             </div>
           )}
