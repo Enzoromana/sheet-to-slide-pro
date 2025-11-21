@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, X, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 
 interface CoverImageUploadProps {
   onImageChange: (imageDataUrl: string | null) => void;
@@ -35,41 +34,39 @@ export const CoverImageUpload = ({ onImageChange, currentImage }: CoverImageUplo
   };
 
   return (
-    <Card className="p-4">
-      <label className="block mb-2 text-sm font-medium">
-        Imagem da Capa (Opcional)
-      </label>
-      
+    <div className="h-full">
       {preview ? (
-        <div className="space-y-2">
-          <div className="border-2 border-dashed rounded-lg p-2">
+        <div className="space-y-3 h-full flex flex-col">
+          <div className="border-2 border-[#1D7874]/20 rounded-xl overflow-hidden shadow-md flex-1">
             <img 
               src={preview} 
               alt="Capa preview" 
-              className="w-full h-32 object-cover rounded"
+              className="w-full h-full object-cover"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <Button
               onClick={() => document.getElementById('cover-upload')?.click()}
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="border-[#1D7874] text-[#1D7874] hover:bg-[#1D7874] hover:text-white transition-all"
             >
-              Trocar Imagem
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Trocar
             </Button>
             <Button
               onClick={handleRemoveImage}
-              variant="destructive"
+              variant="outline"
               size="sm"
-              className="flex-1"
+              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all"
             >
+              <X className="h-4 w-4 mr-2" />
               Remover
             </Button>
           </div>
         </div>
       ) : (
-        <div className="relative">
+        <div className="h-32">
           <input
             id="cover-upload"
             type="file"
@@ -80,18 +77,27 @@ export const CoverImageUpload = ({ onImageChange, currentImage }: CoverImageUplo
           <Button
             onClick={() => document.getElementById('cover-upload')?.click()}
             variant="outline"
-            className="w-full h-24 border-2 border-dashed hover:border-primary transition-colors"
+            className="w-full h-full border-2 border-dashed border-[#1D7874] hover:border-[#F7931E] hover:bg-[#FFF8F0] transition-all duration-300 group"
           >
-            <div className="flex flex-col items-center gap-2">
-              <Upload className="h-6 w-6" />
-              <span className="text-xs">Upload da Capa</span>
-              <span className="text-xs text-muted-foreground">
-                PNG, JPG ou WEBP
-              </span>
+            <div className="flex flex-col items-center gap-3">
+              <div className="p-3 bg-[#1D7874] group-hover:bg-[#F7931E] rounded-full transition-colors duration-300">
+                <Upload className="h-8 w-8 text-white" />
+              </div>
+              <div className="space-y-1">
+                <p className="font-semibold text-gray-700">Upload de Capa</p>
+                <p className="text-xs text-gray-500">PNG, JPG ou WEBP</p>
+              </div>
             </div>
           </Button>
         </div>
       )}
-    </Card>
+      <input
+        id="cover-upload"
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
+    </div>
   );
 };
