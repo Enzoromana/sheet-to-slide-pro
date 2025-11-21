@@ -13,6 +13,15 @@ interface ExportData {
   ageBasedPricingNoCopay: any[];
 }
 
+const formatPercentage = (value: any): string => {
+  if (typeof value === 'string' && value.includes('%')) {
+    return value; // Already formatted
+  }
+  const num = typeof value === 'number' ? value : parseFloat(value);
+  if (isNaN(num)) return '0%';
+  return `${Math.round(num * 100)}%`;
+};
+
 export const exportToPPTX = async (data: ExportData) => {
   const pptx = new pptxgen();
 
@@ -25,39 +34,81 @@ export const exportToPPTX = async (data: ExportData) => {
   const kliniOrange = "F7931E";
   const lightTeal = "B8D4D3";
 
-  // Slide 1: Capa
+  // Slide 1: Capa customizada Klini
   const slide1 = pptx.addSlide();
-  slide1.background = { color: kliniTeal };
+  
+  // Background image - usando a imagem da capa Klini
+  // Nota: A imagem precisa estar em base64 ou URL acessível
+  slide1.background = { 
+    path: "https://i.imgur.com/placeholder.jpg", // Substituir pela imagem real do Klini
+    sizing: { type: "cover" }
+  };
+  
+  // Título "PROPOSTA COMERCIAL" - caixa branca
+  slide1.addShape(pptx.ShapeType.rect, {
+    x: 0.5,
+    y: 6.8,
+    w: 7.26,
+    h: 1.2,
+    fill: { color: "FFFFFF" },
+    line: { type: "none" }
+  });
   
   slide1.addText("PROPOSTA COMERCIAL", {
     x: 0.5,
-    y: 5,
+    y: 6.9,
     w: 7.26,
     h: 1,
-    fontSize: 44,
+    fontSize: 36,
     bold: true,
-    color: "FFFFFF",
+    color: "1D7874",
     align: "center",
+    valign: "middle"
   });
 
+  // Data - caixa laranja
   const currentDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-  slide1.addText(currentDate.toUpperCase(), {
-    x: 2.5,
-    y: 6.5,
-    w: 3.26,
-    h: 0.6,
-    fontSize: 20,
-    color: "FFFFFF",
+  slide1.addShape(pptx.ShapeType.rect, {
+    x: 4.5,
+    y: 8.3,
+    w: 3.0,
+    h: 0.7,
     fill: { color: kliniOrange },
+    line: { type: "none" }
+  });
+  
+  slide1.addText(currentDate.toUpperCase(), {
+    x: 4.5,
+    y: 8.3,
+    w: 3.0,
+    h: 0.7,
+    fontSize: 18,
+    color: "FFFFFF",
     align: "center",
+    valign: "middle",
+    italic: true
   });
 
-  slide1.addText("ANS - Nº 42.202-9", {
-    x: 6.5,
-    y: 11,
-    w: 1.5,
+  // Logo Klini no topo (se disponível como imagem)
+  // slide1.addImage({ path: "logo-klini.png", x: 3.0, y: 2.0, w: 2.26, h: 1.0 });
+
+  // Versão e ANS no rodapé
+  slide1.addText("V2.00/070251.3.4", {
+    x: 0.3,
+    y: 11.3,
+    w: 2.0,
     h: 0.3,
-    fontSize: 10,
+    fontSize: 8,
+    color: "FFFFFF",
+    align: "left",
+  });
+  
+  slide1.addText("ANS - Nº 42.202-9", {
+    x: 6.3,
+    y: 11.3,
+    w: 1.7,
+    h: 0.3,
+    fontSize: 8,
     color: "FFFFFF",
     align: "right",
   });
@@ -152,7 +203,7 @@ export const exportToPPTX = async (data: ExportData) => {
       { text: String(row.totalM || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
       { text: String(row.totalF || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
       { text: String(row.total), options: { bold: true, fill: { color: kliniTeal }, color: "FFFFFF" } },
-      { text: String(row.percentage), options: { bold: true, fill: { color: kliniTeal }, color: "FFFFFF" } },
+      { text: formatPercentage(row.percentage), options: { bold: true, fill: { color: kliniTeal }, color: "FFFFFF" } },
     ]);
   });
 

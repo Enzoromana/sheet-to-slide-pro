@@ -27,6 +27,15 @@ interface DemographicsTableProps {
 }
 
 export const DemographicsTable = ({ data }: DemographicsTableProps) => {
+  const formatPercentage = (value: string | number): string => {
+    if (typeof value === 'string' && value.includes('%')) {
+      return value;
+    }
+    const num = typeof value === 'number' ? value : parseFloat(String(value));
+    if (isNaN(num)) return '0%';
+    return `${Math.round(num * 100)}%`;
+  };
+
   return (
     <Card className="p-6 shadow-md border-none">
       <div className="mb-6 text-center">
@@ -91,7 +100,7 @@ export const DemographicsTable = ({ data }: DemographicsTableProps) => {
                 <TableCell className="text-center border-l">{row.totalM}</TableCell>
                 <TableCell className="text-center">{row.totalF}</TableCell>
                 <TableCell className="text-center font-bold bg-table-header text-primary-foreground">{row.total}</TableCell>
-                <TableCell className="text-center border-l font-bold bg-table-header text-primary-foreground">{row.percentage}</TableCell>
+                <TableCell className="text-center border-l font-bold bg-table-header text-primary-foreground">{formatPercentage(row.percentage)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
