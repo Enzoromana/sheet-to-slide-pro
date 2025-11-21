@@ -13,6 +13,7 @@ import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
 import { LogoUpload } from "@/components/LogoUpload";
 import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
+import { DEFAULT_COVER_IMAGE } from "@/utils/defaultCoverImage";
 
 interface ParsedData {
   companyName: string;
@@ -30,7 +31,7 @@ interface ParsedData {
 const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [logo, setLogo] = useState<string | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER_IMAGE);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
