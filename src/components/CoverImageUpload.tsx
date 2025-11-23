@@ -107,22 +107,24 @@ export const CoverImageUpload = ({ onImageChange, currentImage }: CoverImageUplo
 
       {/* Modal de Visualização Completa */}
       <Dialog open={showFullView} onOpenChange={setShowFullView}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-          <DialogHeader className="p-6 pb-0">
+        <DialogContent className="max-w-3xl max-h-[85vh] p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-4">
             <DialogTitle className="text-2xl font-bold text-[#1D7874]">
               📄 Visualização da Capa
             </DialogTitle>
           </DialogHeader>
-          <div className="p-6 overflow-auto">
+          <div className="px-6 pb-4 max-h-[calc(85vh-180px)] overflow-auto">
             {preview && (
-              <img 
-                src={preview} 
-                alt="Capa completa" 
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
+              <div className="flex items-center justify-center bg-gray-50 rounded-lg p-4">
+                <img 
+                  src={preview} 
+                  alt="Capa completa" 
+                  className="max-w-full max-h-[calc(85vh-220px)] w-auto h-auto object-contain rounded-lg shadow-lg"
+                />
+              </div>
             )}
           </div>
-          <div className="p-6 pt-0 flex gap-3">
+          <div className="p-6 pt-0 flex gap-3 border-t bg-gray-50/50">
             <Button
               onClick={() => {
                 setShowFullView(false);
