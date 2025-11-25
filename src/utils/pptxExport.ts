@@ -365,7 +365,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         [
           { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
           ...planColumns.map((planName) => ({
-            text: planName.length > 20 ? planName.substring(0, 20) + "..." : planName,
+            text: planName, // Nome completo sem truncar
             options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 }
           }))
         ],
@@ -489,7 +489,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         [
           { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
           ...planColumns.map((planName) => ({
-            text: planName.length > 20 ? planName.substring(0, 20) + "..." : planName,
+            text: planName, // Nome completo sem truncar
             options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 }
           }))
         ],
