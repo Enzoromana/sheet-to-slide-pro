@@ -229,6 +229,10 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
     ],
   ];
 
+  // Calcular totais para linha 18 (TOTAL)
+  let totalTitularM = 0, totalTitularF = 0, totalDependentM = 0, totalDependentF = 0;
+  let totalAgregadoM = 0, totalAgregadoF = 0, totalTotalM = 0, totalTotalF = 0, grandTotal = 0;
+
   data.demographics.forEach((row, index) => {
     const isAlt = index % 2 === 1;
     demoRows.push([
@@ -241,10 +245,37 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       { text: String(row.agregadoF || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
       { text: String(row.totalM || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
       { text: String(row.totalF || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.total), options: { bold: true, fill: { color: kliniTeal }, color: "FFFFFF" } },
-      { text: formatPercentage(row.percentage), options: { bold: true, fill: { color: kliniTeal }, color: "FFFFFF" } },
+      { text: String(row.total || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
+      { text: formatPercentage(row.percentage), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
     ]);
+
+    // Acumular totais
+    totalTitularM += (row.titularM || 0);
+    totalTitularF += (row.titularF || 0);
+    totalDependentM += (row.dependentM || 0);
+    totalDependentF += (row.dependentF || 0);
+    totalAgregadoM += (row.agregadoM || 0);
+    totalAgregadoF += (row.agregadoF || 0);
+    totalTotalM += (row.totalM || 0);
+    totalTotalF += (row.totalF || 0);
+    grandTotal += (row.total || 0);
   });
+
+  // Adicionar linha 18 (TOTAL) formatada com fundo escuro e texto branco em negrito
+  const darkTeal = "164E4B";
+  demoRows.push([
+    { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalTitularM), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalTitularF), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalDependentM), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalDependentF), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalAgregadoM), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalAgregadoF), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalTotalM), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(totalTotalF), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: String(grandTotal), options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+    { text: "100%", options: { bold: true, color: "FFFFFF", fill: { color: darkTeal } } },
+  ]);
 
   slide2.addTable(demoRows, {
     x: 0.3,
@@ -372,16 +403,35 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       ];
 
       // Adicionar todas as linhas de faixa etária
+      const columnTotals: { [key: string]: number } = {};
+      planColumns.forEach(col => {
+        columnTotals[col] = 0;
+      });
+
       data.ageBasedPricingCopay.forEach((row, rowIndex) => {
         const isAlt = rowIndex % 2 === 1;
         ageRows.push([
           { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 } },
-          ...planColumns.map(col => ({
-            text: row[col] ? formatCurrency(row[col]) : '-',
-            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 }
-          }))
+          ...planColumns.map(col => {
+            const value = row[col] || 0;
+            columnTotals[col] += (typeof value === 'number' ? value : 0);
+            return {
+              text: row[col] ? formatCurrency(row[col]) : '-',
+              options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 }
+            };
+          })
         ]);
       });
+
+      // Adicionar linha 18 (TOTAL) formatada com fundo escuro
+      const darkTeal = "164E4B";
+      ageRows.push([
+        { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: { color: darkTeal }, fontSize: 6 } },
+        ...planColumns.map(col => ({
+          text: formatCurrency(columnTotals[col]),
+          options: { bold: true, color: "FFFFFF", fill: { color: darkTeal }, fontSize: 6 }
+        }))
+      ]);
 
       // Calcular largura das colunas dinamicamente
       const colWidth = (7.26 - 0.8) / planColumns.length;
@@ -496,16 +546,35 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       ];
 
       // Adicionar todas as linhas de faixa etária
+      const columnTotals: { [key: string]: number } = {};
+      planColumns.forEach(col => {
+        columnTotals[col] = 0;
+      });
+
       data.ageBasedPricingNoCopay.forEach((row, rowIndex) => {
         const isAlt = rowIndex % 2 === 1;
         ageRows.push([
           { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 } },
-          ...planColumns.map(col => ({
-            text: row[col] ? formatCurrency(row[col]) : '-',
-            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 }
-          }))
+          ...planColumns.map(col => {
+            const value = row[col] || 0;
+            columnTotals[col] += (typeof value === 'number' ? value : 0);
+            return {
+              text: row[col] ? formatCurrency(row[col]) : '-',
+              options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 }
+            };
+          })
         ]);
       });
+
+      // Adicionar linha 18 (TOTAL) formatada com fundo escuro
+      const darkTeal = "164E4B";
+      ageRows.push([
+        { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: { color: darkTeal }, fontSize: 6 } },
+        ...planColumns.map(col => ({
+          text: formatCurrency(columnTotals[col]),
+          options: { bold: true, color: "FFFFFF", fill: { color: darkTeal }, fontSize: 6 }
+        }))
+      ]);
 
       // Calcular largura das colunas dinamicamente
       const colWidth = (7.26 - 0.8) / planColumns.length;
