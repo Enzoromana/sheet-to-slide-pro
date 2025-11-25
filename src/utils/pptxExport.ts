@@ -350,8 +350,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
   if (data.ageBasedPricingCopay && data.ageBasedPricingCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingCopay[0]).filter(key => key !== 'ageRange');
     
-    // Dividir planos em grupos de 3 para formato retrato
-    const plansPerSlide = 3;
+    // Aumentar para 5 planos por slide (em vez de 3) para formato mais compacto
+    const plansPerSlide = 5;
     for (let i = 0; i < planColumns.length; i += plansPerSlide) {
       const columnsSlice = planColumns.slice(i, i + plansPerSlide);
       
@@ -363,7 +363,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         y: 0.5,
         w: 7.26,
         h: 0.5,
-        fontSize: 20,
+        fontSize: 18,
         bold: true,
         color: kliniOrange,
         align: "center",
@@ -371,10 +371,10 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
       const ageRows = [
         [
-          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
           ...columnsSlice.map((planName) => ({
-            text: planName.length > 30 ? planName.substring(0, 30) + "..." : planName,
-            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } }
+            text: planName.length > 25 ? planName.substring(0, 25) + "..." : planName,
+            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 }
           }))
         ],
       ];
@@ -382,10 +382,10 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       data.ageBasedPricingCopay.forEach((row, rowIndex) => {
         const isAlt = rowIndex % 2 === 1;
         ageRows.push([
-          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
+          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 7 } },
           ...columnsSlice.map(col => ({
             text: row[col] ? formatCurrency(row[col]) : '-',
-            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } }
+            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 7 }
           }))
         ]);
       });
@@ -394,10 +394,10 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         x: 0.3,
         y: 1.2,
         w: 7.66,
-        fontSize: 7,
         border: { pt: 0.5, color: "CCCCCC" },
         align: "center",
-        colW: [1.5, ...Array(columnsSlice.length).fill((7.66 - 1.5) / columnsSlice.length)]
+        // Colunas mais compactas: Faixa Etária menor, planos dividem o resto
+        colW: [1.0, ...Array(columnsSlice.length).fill((7.66 - 1.0) / columnsSlice.length)]
       });
 
       slideAge.addText(
@@ -430,8 +430,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
   if (data.ageBasedPricingNoCopay && data.ageBasedPricingNoCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingNoCopay[0]).filter(key => key !== 'ageRange');
     
-    // Dividir planos em grupos de 3 para formato retrato
-    const plansPerSlide = 3;
+    // Aumentar para 5 planos por slide (em vez de 3) para formato mais compacto
+    const plansPerSlide = 5;
     for (let i = 0; i < planColumns.length; i += plansPerSlide) {
       const columnsSlice = planColumns.slice(i, i + plansPerSlide);
       
@@ -443,7 +443,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         y: 0.5,
         w: 7.26,
         h: 0.5,
-        fontSize: 20,
+        fontSize: 18,
         bold: true,
         color: kliniOrange,
         align: "center",
@@ -451,10 +451,10 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
       const ageRows = [
         [
-          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
           ...columnsSlice.map((planName) => ({
-            text: planName.length > 30 ? planName.substring(0, 30) + "..." : planName,
-            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } }
+            text: planName.length > 25 ? planName.substring(0, 25) + "..." : planName,
+            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 }
           }))
         ],
       ];
@@ -462,10 +462,10 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       data.ageBasedPricingNoCopay.forEach((row, rowIndex) => {
         const isAlt = rowIndex % 2 === 1;
         ageRows.push([
-          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
+          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 7 } },
           ...columnsSlice.map(col => ({
             text: row[col] ? formatCurrency(row[col]) : '-',
-            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } }
+            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 7 }
           }))
         ]);
       });
@@ -474,10 +474,10 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         x: 0.3,
         y: 1.2,
         w: 7.66,
-        fontSize: 7,
         border: { pt: 0.5, color: "CCCCCC" },
         align: "center",
-        colW: [1.5, ...Array(columnsSlice.length).fill((7.66 - 1.5) / columnsSlice.length)]
+        // Colunas mais compactas: Faixa Etária menor, planos dividem o resto
+        colW: [1.0, ...Array(columnsSlice.length).fill((7.66 - 1.0) / columnsSlice.length)]
       });
 
       slideAge.addText(
