@@ -14,6 +14,8 @@ import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 import { DEFAULT_COVER_IMAGE } from "@/utils/defaultCoverImage";
 import { KLINI_LOGO } from "@/assets/kliniLogo";
+import { validateExcelStructure } from "@/utils/excelValidator";
+import { ValidationDialog } from "@/components/ValidationDialog";
 
 interface ParsedData {
   companyName: string;
@@ -32,6 +34,13 @@ const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER_IMAGE);
   const { toast } = useToast();
+  const [validationError, setValidationError] = useState<{
+  errors: string[];
+  warnings: string[];
+} | null>(null);
+const [showValidationDialog, setShowValidationDialog] = useState(false);
+const [pendingFile, setPendingFile] = useState<ArrayBuffer | null>(null);
+const [pendingWorkbook, setPendingWorkbook] = useState<any>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -53,6 +62,19 @@ const Index = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
+      // ✅ VALIDAR ESTRUTURA DO ARQUIVO
+      const validation = validateExcelStructure(jsonData, workbook.SheetNames[0]);
+
+      if (!validation.isValid || validation.warnings.length > 0) {
+        setValidationError({
+          errors: validation.errors,
+          warnings: validation.warnings,
+        });
+        setShowValidationDialog(true);
+        setPendingFile(data);
+        setPendingWorkbook(workbook);
+        return; // Parar aqui
+      }
       // Parse company info - data is in column B (index 1), rows 2-4 (indices 1-3)
       const companyName = (jsonData[1] as any)?.[1] || "";
       const concessionaire = (jsonData[2] as any)?.[1] || "";
@@ -177,6 +199,132 @@ const Index = () => {
     }
   };
 
+  const handleContinueWithInvalidFile = () => {
+    if (!pendingWorkbook || !pendingFile) return;
+
+    const workbook = pendingWorkbook;
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+    const parseCurrency = (value: any): number => {
+      if (typeof value === 'number') return value;
+      if (typeof value === 'string') {
+        const cleaned = value.replace(/[R$\\s.]/g, '').replace(',', '.');
+        const parsed = parseFloat(cleaned);
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return 0;
+    };
+
+    const companyName = (jsonData[1] as any)?.[1] || "";
+    const concessionaire = (jsonData[2] as any)?.[1] || "";
+    const broker = (jsonData[3] as any)?.[1] || "";
+
+    const allDemographics: any[] = [];
+    for (let i = 7; i <= 16; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const ageRange = String(row[1]).trim();
+      if (ageRange === "TOTAL" || ageRange === "IDADE MÉDIA:" || ageRange === "") continue;
+      allDemographics.push({
+        ageRange,
+        titularM: row[2] || 0,
+        titularF: row[3] || 0,
+        dependentM: row[4] || 0,
+        dependentF: row[5] || 0,
+        agregadoM: 0,
+        agregadoF: 0,
+        totalM: row[8] || 0,
+        totalF: row[9] || 0,
+        total: row[10] || 0,
+        percentage: row[11] || "0%",
+      });
+    }
+
+    const allPlansWithCopay: any[] = [];
+    for (let i = 26; i <= 33; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const planName = String(row[1]).trim();
+      if (!planName.startsWith("KLINI")) continue;
+      allPlansWithCopay.push({
+        name: planName,
+        ansCode: String(row[4] || '').trim(),
+        perCapita: parseCurrency(row[5]) || 0,
+        estimatedInvoice: parseCurrency(row[6]) || 0,
+      });
+    }
+
+    const copayAgeHeader = jsonData[40] as any[];
+    const copayPlanNames = copayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
+    const allAgeBasedPricingCopay: any[] = [];
+    for (let i = 41; i <= 50; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const ageRange = String(row[1]).trim();
+      if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
+      const pricing: any = { ageRange };
+      copayPlanNames.forEach((planName: string, idx: number) => {
+        pricing[planName] = parseCurrency(row[idx + 2]) || 0;
+      });
+      allAgeBasedPricingCopay.push(pricing);
+    }
+
+    const allPlansWithoutCopay: any[] = [];
+    for (let i = 60; i <= 67; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const planName = String(row[1]).trim();
+      if (!planName.startsWith("KLINI")) continue;
+      allPlansWithoutCopay.push({
+        name: planName,
+        ansCode: String(row[4] || '').trim(),
+        perCapita: parseCurrency(row[5]) || 0,
+        estimatedInvoice: parseCurrency(row[6]) || 0,
+      });
+    }
+
+    const noCopayAgeHeader = jsonData[75] as any[];
+    const noCopayPlanNames = noCopayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
+    const allAgeBasedPricingNoCopay: any[] = [];
+    for (let i = 76; i <= 85; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const ageRange = String(row[1]).trim();
+      if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
+      const pricing: any = { ageRange };
+      noCopayPlanNames.forEach((planName: string, idx: number) => {
+        pricing[planName] = parseCurrency(row[idx + 2]) || 0;
+      });
+      allAgeBasedPricingNoCopay.push(pricing);
+    }
+
+    const emissionDate = new Date().toLocaleDateString('pt-BR');
+    const validityDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR');
+
+    setParsedData({
+      companyName,
+      concessionaire,
+      broker,
+      emissionDate,
+      validityDate,
+      demographics: allDemographics,
+      plansWithCopay: allPlansWithCopay,
+      plansWithoutCopay: allPlansWithoutCopay,
+      ageBasedPricingCopay: allAgeBasedPricingCopay,
+      ageBasedPricingNoCopay: allAgeBasedPricingNoCopay,
+    });
+
+    setShowValidationDialog(false);
+    setValidationError(null);
+    setPendingFile(null);
+    setPendingWorkbook(null);
+
+    toast({
+      title: "Arquivo processado!",
+      description: "Os dados foram extraídos mesmo com avisos.",
+    });
+  };
   const handleExportPPTX = async () => {
     if (!parsedData) return;
 
@@ -431,6 +579,19 @@ const Index = () => {
           )}
         </div>
       </div>
+      {/* Diálogo de Validação */}
+    <ValidationDialog
+      isOpen={showValidationDialog}
+      errors={validationError?.errors || []}
+      warnings={validationError?.warnings || []}
+      onContinue={handleContinueWithInvalidFile}
+      onCancel={() => {
+        setShowValidationDialog(false);
+        setValidationError(null);
+        setPendingFile(null);
+        setPendingWorkbook(null);
+      }}
+    />
     </div>
   );
 };
