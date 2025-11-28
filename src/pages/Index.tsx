@@ -14,7 +14,6 @@ import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 import { DEFAULT_COVER_IMAGE } from "@/utils/defaultCoverImage";
 import { KLINI_LOGO } from "@/assets/kliniLogo";
-import { validateExcelStructure } from "@/utils/excelValidator";
 import { ValidationDialog } from "@/components/ValidationDialog";
 
 interface ParsedData {
