@@ -32,10 +32,6 @@ const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER_IMAGE);
   const { toast } = useToast();
-  const [validationError, setValidationError] = useState<{
-  errors: string[];
-  warnings: string[];
-} | null>(null);
 
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -195,12 +191,6 @@ const Index = () => {
     }
   };
 
-  const handleContinueWithInvalidFile = () => {
-    if (!pendingWorkbook || !pendingFile) return;
-
-    const workbook = pendingWorkbook;
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
     const parseCurrency = (value: any): number => {
       if (typeof value === 'number') return value;
