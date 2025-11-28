@@ -36,9 +36,7 @@ const Index = () => {
   errors: string[];
   warnings: string[];
 } | null>(null);
-const [showValidationDialog, setShowValidationDialog] = useState(false);
-const [pendingFile, setPendingFile] = useState<ArrayBuffer | null>(null);
-const [pendingWorkbook, setPendingWorkbook] = useState<any>(null);
+
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -578,18 +576,7 @@ const [pendingWorkbook, setPendingWorkbook] = useState<any>(null);
         </div>
       </div>
       {/* Diálogo de Validação */}
-    <ValidationDialog
-      isOpen={showValidationDialog}
-      errors={validationError?.errors || []}
-      warnings={validationError?.warnings || []}
-      onContinue={handleContinueWithInvalidFile}
-      onCancel={() => {
-        setShowValidationDialog(false);
-        setValidationError(null);
-        setPendingFile(null);
-        setPendingWorkbook(null);
-      }}
-    />
+   
     </div>
   );
 };
