@@ -565,11 +565,8 @@ const Index = () => {
           )}
         </div>
       </div>
-      {/* Diálogo de Validação */}
-   
     </div>
+      </div>
   );
 };
-
-export default Index; 
-
+export default Index;
