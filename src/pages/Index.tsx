@@ -114,10 +114,10 @@ const Index = () => {
         allAgeBasedPricingCopay.push(pricing);
       }
 
-      // Parse plans WITHOUT copay (rows 61-68 in Excel = indices 60-67)
+      // Parse plans WITHOUT copay (rows 61-68 in Excel = indices 59-66)
       // Column layout: B=name, E=ANS code, F=per capita, G=estimated invoice
       const allPlansWithoutCopay: any[] = [];
-      for (let i = 60; i <= 67; i++) {
+      for (let i = 59; i <= 66; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[1]) continue;
         const planName = String(row[1]).trim();
