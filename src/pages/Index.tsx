@@ -99,10 +99,10 @@ const Index = () => {
 
       // Parse age-based pricing WITH copay (header in row 41 = index 40, data rows 42-51 = indices 41-50)
       // Header starts at column 2 (index 1)
-      const copayAgeHeader = jsonData[40] as any[];
+      const copayAgeHeader = jsonData[38] as any[];
       const copayPlanNames = copayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingCopay: any[] = [];
-      for (let i = 41; i <= 50; i++) {
+      for (let i = 40; i <= 49; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[1]) continue;
         const ageRange = String(row[1]).trim();
@@ -132,10 +132,10 @@ const Index = () => {
 
       // Parse age-based pricing WITHOUT copay (header in row 76 = index 75, data rows 77-86 = indices 76-85)
       // Header starts at column 2 (index 1)
-      const noCopayAgeHeader = jsonData[73] as any[];
+      const noCopayAgeHeader = jsonData[70] as any[];
       const noCopayPlanNames = noCopayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingNoCopay: any[] = [];
-      for (let i = 74; i <= 83; i++) {
+      for (let i = 72; i <= 81; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[1]) continue;
         const ageRange = String(row[1]).trim();
