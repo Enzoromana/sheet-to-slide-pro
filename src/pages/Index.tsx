@@ -132,10 +132,10 @@ const Index = () => {
 
       // Parse age-based pricing WITHOUT copay (header in row 76 = index 75, data rows 77-86 = indices 76-85)
       // Header starts at column 2 (index 1)
-      const noCopayAgeHeader = jsonData[75] as any[];
+      const noCopayAgeHeader = jsonData[73] as any[];
       const noCopayPlanNames = noCopayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingNoCopay: any[] = [];
-      for (let i = 76; i <= 85; i++) {
+      for (let i = 74; i <= 83; i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[1]) continue;
         const ageRange = String(row[1]).trim();
