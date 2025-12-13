@@ -32,33 +32,17 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
   // ==================== SLIDE 1: CAPA ====================
   const slide1 = pptx.addSlide();
 
-  // Verificar se tem imagem de capa válida em base64
-  const hasValidCover = coverImage && typeof coverImage === 'string' && coverImage.startsWith("data:");
-
-  if (hasValidCover) {
-    // Usar imagem de capa customizada
+  if (coverImage && coverImage.startsWith("data:")) {
     slide1.addImage({
       data: coverImage,
       x: 0,
       y: 0,
       w: 8.26,
       h: 11.69,
-      sizing: { type: "cover", w: 8.26, h: 11.69 },
+      sizing: { type: "cover" },
     });
   } else {
-    // CAPA PADRÃO - Sempre exibida quando não há imagem
-    
-    // Fundo verde Klini
-    slide1.addShape(pptx.ShapeType.rect, {
-      x: 0,
-      y: 0,
-      w: 8.26,
-      h: 11.69,
-      fill: { color: kliniTeal },
-      line: { type: "none" },
-    });
-
-    // Círculo decorativo
+    slide1.background = { color: kliniTeal };
     slide1.addShape(pptx.ShapeType.ellipse, {
       x: 1.5,
       y: 3.0,
@@ -67,34 +51,20 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       fill: { color: "164E4B", transparency: 30 },
       line: { type: "none" },
     });
-
-    // Logo "klini"
-    slide1.addText("klini", {
+    slide1.addText([{ text: "klini", options: { fontSize: 72, bold: true, color: "FFFFFF" } }], {
       x: 1.8,
       y: 1.8,
       w: 4.66,
       h: 1.5,
-      fontSize: 72,
-      bold: true,
-      color: "FFFFFF",
       align: "center",
-      fontFace: "Arial",
     });
-
-    // Subtítulo "saúde"
-    slide1.addText("saúde", {
+    slide1.addText([{ text: "saúde", options: { fontSize: 48, bold: false, color: "FFFFFF" } }], {
       x: 2.3,
       y: 2.8,
       w: 3.66,
       h: 1.0,
-      fontSize: 48,
-      bold: false,
-      color: "FFFFFF",
       align: "center",
-      fontFace: "Arial",
     });
-
-    // Barra branca para "PROPOSTA COMERCIAL"
     slide1.addShape(pptx.ShapeType.rect, {
       x: 0.5,
       y: 6.8,
@@ -103,8 +73,6 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       fill: { color: "FFFFFF" },
       line: { type: "none" },
     });
-
-    // Texto "PROPOSTA COMERCIAL"
     slide1.addText("PROPOSTA COMERCIAL", {
       x: 0.5,
       y: 6.85,
@@ -115,13 +83,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       color: kliniTeal,
       align: "center",
       valign: "middle",
-      fontFace: "Arial",
     });
-
-    // Data atual
     const currentDate = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
-    
-    // Barra laranja com a data
     slide1.addShape(pptx.ShapeType.rect, {
       x: 4.7,
       y: 8.0,
@@ -130,7 +93,6 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       fill: { color: kliniOrange },
       line: { type: "none" },
     });
-
     slide1.addText(currentDate.toUpperCase(), {
       x: 4.7,
       y: 8.05,
@@ -141,10 +103,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       align: "center",
       valign: "middle",
       italic: true,
-      fontFace: "Arial",
     });
-
-    // Versão (canto inferior esquerdo)
     slide1.addText("V2.01120251.0", {
       x: 0.3,
       y: 11.35,
@@ -153,10 +112,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       fontSize: 7,
       color: "FFFFFF",
       align: "left",
-      fontFace: "Arial",
     });
-
-    // ANS (canto inferior direito)
     slide1.addText("ANS - Nº 42.202-9", {
       x: 6.0,
       y: 11.35,
@@ -165,22 +121,12 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       fontSize: 7,
       color: "FFFFFF",
       align: "right",
-      fontFace: "Arial",
     });
   }
 
   // ==================== SLIDE 2: DADOS + DEMOGRAFIA ====================
   const slide2 = pptx.addSlide();
-  
-  // Fundo branco
-  slide2.addShape(pptx.ShapeType.rect, {
-    x: 0,
-    y: 0,
-    w: 8.26,
-    h: 11.69,
-    fill: { color: "FFFFFF" },
-    line: { type: "none" },
-  });
+  slide2.background = { color: "FFFFFF" };
 
   slide2.addText("Tabela de Preços", {
     x: 0.5,
@@ -289,15 +235,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
   // ==================== SLIDE 3: SEM COPARTICIPAÇÃO ====================
   const slide3 = pptx.addSlide();
-  
-  slide3.addShape(pptx.ShapeType.rect, {
-    x: 0,
-    y: 0,
-    w: 8.26,
-    h: 11.69,
-    fill: { color: "FFFFFF" },
-    line: { type: "none" },
-  });
+  slide3.background = { color: "FFFFFF" };
 
   slide3.addText("ANS - Nº 42.202-9", {
     x: 6.5,
@@ -407,15 +345,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
   // ==================== SLIDE 4: COM COPARTICIPAÇÃO ====================
   const slide4 = pptx.addSlide();
-  
-  slide4.addShape(pptx.ShapeType.rect, {
-    x: 0,
-    y: 0,
-    w: 8.26,
-    h: 11.69,
-    fill: { color: "FFFFFF" },
-    line: { type: "none" },
-  });
+  slide4.background = { color: "FFFFFF" };
 
   slide4.addText("ANS - Nº 42.202-9", {
     x: 6.5,
