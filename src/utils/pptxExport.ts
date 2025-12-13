@@ -13,436 +13,446 @@ interface ExportData {
   ageBasedPricingNoCopay: any[];
 }
 
-export const exportToPPTX = async (data: ExportData) => {
-  const pptx = new pptxgen();
+const formatCurrency = (value: any): string => {
+  if (!value) return "R$ 0,00";
+  const num = typeof value === "number" ? value : parseFloat(value);
+  if (isNaN(num)) return "R$ 0,00";
+  return `R$ ${num.toFixed(2).replace(".", ",")}`;
+};
 
-  // Set portrait layout: 20.99cm x 29.704cm (8.26" x 11.69")
+export const exportToPPTX = async (data: ExportData, coverImage?: string | null) => {
+  const pptx = new pptxgen();
   pptx.defineLayout({ name: "PORTRAIT_A4", width: 8.26, height: 11.69 });
   pptx.layout = "PORTRAIT_A4";
 
-  // Define cores Klini
   const kliniTeal = "1D7874";
   const kliniOrange = "F7931E";
-  const lightTeal = "B8D4D3";
+  const lightGray = "F5F5F5";
 
-  // Slide 1: Capa
+  // ==================== SLIDE 1: CAPA ====================
   const slide1 = pptx.addSlide();
-  slide1.background = { color: kliniTeal };
-  
-  slide1.addText("PROPOSTA COMERCIAL", {
-    x: 0.5,
-    y: 5,
-    w: 7.26,
-    h: 1,
-    fontSize: 44,
-    bold: true,
-    color: "FFFFFF",
-    align: "center",
-  });
 
-  const currentDate = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-  slide1.addText(currentDate.toUpperCase(), {
-    x: 2.5,
-    y: 6.5,
-    w: 3.26,
-    h: 0.6,
-    fontSize: 20,
-    color: "FFFFFF",
-    fill: { color: kliniOrange },
-    align: "center",
-  });
+  if (coverImage && coverImage.startsWith("data:")) {
+    slide1.addImage({
+      data: coverImage,
+      x: 0,
+      y: 0,
+      w: 8.26,
+      h: 11.69,
+      sizing: { type: "cover" },
+    });
+  } else {
+    slide1.background = { color: kliniTeal };
+    slide1.addShape(pptx.ShapeType.ellipse, {
+      x: 1.5,
+      y: 3.0,
+      w: 5.0,
+      h: 5.0,
+      fill: { color: "164E4B", transparency: 30 },
+      line: { type: "none" },
+    });
+    slide1.addText([{ text: "klini", options: { fontSize: 72, bold: true, color: "FFFFFF" } }], {
+      x: 1.8,
+      y: 1.8,
+      w: 4.66,
+      h: 1.5,
+      align: "center",
+    });
+    slide1.addText([{ text: "saúde", options: { fontSize: 48, bold: false, color: "FFFFFF" } }], {
+      x: 2.3,
+      y: 2.8,
+      w: 3.66,
+      h: 1.0,
+      align: "center",
+    });
+    slide1.addShape(pptx.ShapeType.rect, {
+      x: 0.5,
+      y: 6.8,
+      w: 7.26,
+      h: 1.0,
+      fill: { color: "FFFFFF" },
+      line: { type: "none" },
+    });
+    slide1.addText("PROPOSTA COMERCIAL", {
+      x: 0.5,
+      y: 6.85,
+      w: 7.26,
+      h: 0.9,
+      fontSize: 32,
+      bold: true,
+      color: kliniTeal,
+      align: "center",
+      valign: "middle",
+    });
+    const currentDate = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+    slide1.addShape(pptx.ShapeType.rect, {
+      x: 4.7,
+      y: 8.0,
+      w: 2.8,
+      h: 0.6,
+      fill: { color: kliniOrange },
+      line: { type: "none" },
+    });
+    slide1.addText(currentDate.toUpperCase(), {
+      x: 4.7,
+      y: 8.05,
+      w: 2.8,
+      h: 0.5,
+      fontSize: 16,
+      color: "FFFFFF",
+      align: "center",
+      valign: "middle",
+      italic: true,
+    });
+    slide1.addText("V2.01120251.0", {
+      x: 0.3,
+      y: 11.35,
+      w: 2.0,
+      h: 0.25,
+      fontSize: 7,
+      color: "FFFFFF",
+      align: "left",
+    });
+    slide1.addText("ANS - Nº 42.202-9", {
+      x: 6.0,
+      y: 11.35,
+      w: 2.0,
+      h: 0.25,
+      fontSize: 7,
+      color: "FFFFFF",
+      align: "right",
+    });
+  }
 
-  slide1.addText("ANS - Nº 42.202-9", {
-    x: 6.5,
-    y: 11,
-    w: 1.5,
-    h: 0.3,
-    fontSize: 10,
-    color: "FFFFFF",
-    align: "right",
-  });
-
-  // Slide 2: Informações da Empresa + Demografia
+  // ==================== SLIDE 2: DADOS + DEMOGRAFIA ====================
   const slide2 = pptx.addSlide();
   slide2.background = { color: "FFFFFF" };
 
-  // Título
-  slide2.addText([
-    { text: "Tabela de ", options: { color: kliniOrange, fontSize: 28, bold: true } },
-    { text: "Preços", options: { color: kliniOrange, fontSize: 28, bold: true } },
-  ], {
+  slide2.addText("Tabela de Preços", {
     x: 0.5,
-    y: 0.5,
+    y: 0.3,
     w: 7.26,
-    h: 0.5,
+    h: 0.4,
+    fontSize: 20,
+    bold: true,
+    color: kliniOrange,
     align: "center",
+  });
+
+  slide2.addText("DADOS DA EMPRESA", {
+    x: 0.5,
+    y: 0.8,
+    w: 7.26,
+    h: 0.3,
+    fontSize: 12,
+    bold: true,
+    color: kliniTeal,
+  });
+
+  let yPos = 1.2;
+  const companyInfo = [
+    `Razão Social: ${data.companyName}`,
+    `Concessionária: ${data.concessionaire}`,
+    `Corretor(a): ${data.broker}`,
+    `Emissão: ${data.emissionDate} | Validade: ${data.validityDate}`,
+  ];
+
+  companyInfo.forEach((info) => {
+    slide2.addText(info, {
+      x: 0.7,
+      y: yPos,
+      w: 6.8,
+      h: 0.25,
+      fontSize: 9,
+      color: "333333",
+    });
+    yPos += 0.35;
   });
 
   slide2.addText("DEMOGRAFIA", {
     x: 0.5,
-    y: 1.1,
+    y: 2.5,
     w: 7.26,
     h: 0.3,
     fontSize: 12,
-    color: "666666",
-    align: "center",
+    bold: true,
+    color: kliniTeal,
   });
 
-  // Informações da empresa
-  slide2.addText(`Razão Social: ${data.companyName}`, {
-    x: 0.5,
-    y: 1.6,
-    w: 7.26,
-    h: 0.3,
-    fontSize: 10,
-    color: "333333",
-  });
-
-  slide2.addText(`Concessionária: ${data.concessionaire}`, {
-    x: 0.5,
-    y: 1.9,
-    w: 7.26,
-    h: 0.3,
-    fontSize: 10,
-    color: "333333",
-  });
-
-  slide2.addText(`Corretor(a): ${data.broker}`, {
-    x: 0.5,
-    y: 2.2,
-    w: 7.26,
-    h: 0.3,
-    fontSize: 10,
-    color: "333333",
-  });
-
-  // Tabela de Demografia
-  const demoRows = [
+  // Tabela Demografia
+  const demoRows: any[] = [
     [
-      { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, rowspan: 2 } },
-      { text: "TITULAR", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, colspan: 2 } },
-      { text: "DEPENDENTE", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, colspan: 2 } },
-      { text: "AGREGADO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, colspan: 2 } },
-      { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, colspan: 3 } },
-      { text: "%", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, rowspan: 2 } },
-    ],
-    [
-      { text: "M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
+      { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "TITULAR M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "TITULAR F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "DEP. M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "DEP. F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "AGRE. M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "AGRE. F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "TOTAL M", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "TOTAL F", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
+      { text: "%", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 7 } },
     ],
   ];
 
-  data.demographics.forEach((row, index) => {
-    const isAlt = index % 2 === 1;
+  data.demographics.forEach((row, idx) => {
+    const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
     demoRows.push([
-      { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.titularM || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.titularF || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.dependentM || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.dependentF || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.agregadoM || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.agregadoF || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.totalM || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.totalF || '0'), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(row.total), options: { bold: true, fill: { color: kliniTeal }, color: "FFFFFF" } },
-      { text: String(row.percentage), options: { bold: true, fill: { color: kliniTeal }, color: "FFFFFF" } },
+      { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.titularM || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.titularF || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.dependentM || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.dependentF || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.agregadoM || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.agregadoF || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.totalM || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.totalF || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.total || "0"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(row.percentage || "0%"), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
     ]);
   });
 
   slide2.addTable(demoRows, {
     x: 0.3,
-    y: 2.7,
+    y: 2.95,
     w: 7.66,
-    fontSize: 7,
     border: { pt: 0.5, color: "CCCCCC" },
-    align: "center",
+    fontSize: 7,
+    rowH: 0.25,
   });
 
-  // Slide 3: Planos com Coparticipação
+  slide2.addText("Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora.", {
+    x: 0.5,
+    y: 10.8,
+    w: 7.26,
+    h: 0.7,
+    fontSize: 6,
+    color: "999999",
+    align: "center",
+    valign: "top",
+  });
+
+  // ==================== SLIDE 3: SEM COPARTICIPAÇÃO ====================
   const slide3 = pptx.addSlide();
   slide3.background = { color: "FFFFFF" };
 
-  slide3.addText("Planos com Coparticipação", {
+  slide3.addText("ANS - Nº 42.202-9", {
+    x: 6.5,
+    y: 0.2,
+    w: 1.5,
+    h: 0.3,
+    fontSize: 9,
+    color: "333333",
+    align: "right",
+  });
+
+  slide3.addText("Planos sem Coparticipação", {
     x: 0.5,
     y: 0.5,
     w: 7.26,
-    h: 0.5,
-    fontSize: 24,
+    h: 0.4,
+    fontSize: 16,
     bold: true,
     color: kliniOrange,
     align: "center",
   });
 
-  const copayRows = [
+  // Tabela Planos SEM COPAY
+  const noCopayRows: any[] = [
     [
-      { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "Registro ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "Valor Per Capita", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "Fatura Estimada", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
+      { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
     ],
   ];
 
-  const formatCurrency = (value: string | number) => {
-    const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d,.-]/g, '').replace(',', '.')) : value;
-    return `R$ ${numValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
-
-  data.plansWithCopay.forEach((plan, index) => {
-    const isAlt = index % 2 === 1;
-    copayRows.push([
-      { text: plan.name, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
+  data.plansWithoutCopay.forEach((plan, idx) => {
+    const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+    noCopayRows.push([
+      { text: plan.name, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
     ]);
   });
 
-  slide3.addTable(copayRows, {
+  slide3.addTable(noCopayRows, {
     x: 0.5,
-    y: 1.3,
+    y: 1.1,
     w: 7.26,
-    fontSize: 9,
     border: { pt: 0.5, color: "CCCCCC" },
     align: "center",
   });
 
-  // Slide 4: Planos sem Coparticipação
+  // Valores por Faixa Etária SEM COPAY
+  slide3.addText("Valores por Faixa Etária - SEM Coparticipação", {
+    x: 0.5,
+    y: 3.2,
+    w: 7.26,
+    h: 0.35,
+    fontSize: 11,
+    bold: true,
+    color: kliniOrange,
+    align: "center",
+  });
+
+  if (data.ageBasedPricingNoCopay && data.ageBasedPricingNoCopay.length > 0) {
+    const planColumns = Object.keys(data.ageBasedPricingNoCopay[0]).filter((key) => key !== "ageRange");
+    const ageRowsNoCopay: any[] = [
+      [
+        { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
+        ...planColumns.map((planName) => ({
+          text: planName.substring(0, 12),
+          options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
+        })),
+      ],
+    ];
+
+    data.ageBasedPricingNoCopay.forEach((row, idx) => {
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+      ageRowsNoCopay.push([
+        { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+        ...planColumns.map((col) => ({
+          text: row[col] ? formatCurrency(row[col]) : "-",
+          options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 },
+        })),
+      ]);
+    });
+
+    const colWidth = (7.26 - 0.8) / planColumns.length;
+    slide3.addTable(ageRowsNoCopay, {
+      x: 0.5,
+      y: 3.7,
+      w: 7.26,
+      border: { pt: 0.5, color: "CCCCCC" },
+      align: "center",
+      colW: [0.8, ...Array(planColumns.length).fill(colWidth)],
+    });
+  }
+
+  slide3.addText("Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora.", {
+    x: 0.5,
+    y: 10.8,
+    w: 7.26,
+    h: 0.7,
+    fontSize: 6,
+    color: "999999",
+    align: "center",
+    valign: "top",
+  });
+
+  // ==================== SLIDE 4: COM COPARTICIPAÇÃO ====================
   const slide4 = pptx.addSlide();
   slide4.background = { color: "FFFFFF" };
 
-  slide4.addText("Planos sem Coparticipação", {
+  slide4.addText("ANS - Nº 42.202-9", {
+    x: 6.5,
+    y: 0.2,
+    w: 1.5,
+    h: 0.3,
+    fontSize: 9,
+    color: "333333",
+    align: "right",
+  });
+
+  slide4.addText("Planos com Coparticipação", {
     x: 0.5,
     y: 0.5,
     w: 7.26,
-    h: 0.5,
-    fontSize: 24,
+    h: 0.4,
+    fontSize: 16,
     bold: true,
     color: kliniOrange,
     align: "center",
   });
 
-  const noCopayRows = [
+  // Tabela Planos COM COPAY
+  const copayRows: any[] = [
     [
-      { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "Registro ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "Valor Per Capita", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-      { text: "Fatura Estimada", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
+      { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
     ],
   ];
 
-  data.plansWithoutCopay.forEach((plan, index) => {
-    const isAlt = index % 2 === 1;
-    noCopayRows.push([
-      { text: plan.name, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-      { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
+  data.plansWithCopay.forEach((plan, idx) => {
+    const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+    copayRows.push([
+      { text: plan.name, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
     ]);
   });
 
-  slide4.addTable(noCopayRows, {
+  slide4.addTable(copayRows, {
     x: 0.5,
-    y: 1.3,
+    y: 1.1,
     w: 7.26,
-    fontSize: 9,
     border: { pt: 0.5, color: "CCCCCC" },
     align: "center",
   });
 
-  // Slides de Valores por Faixa Etária - Planos COM Coparticipação
+  // Valores por Faixa Etária COM COPAY
+  slide4.addText("Valores por Faixa Etária - COM Coparticipação", {
+    x: 0.5,
+    y: 3.2,
+    w: 7.26,
+    h: 0.35,
+    fontSize: 11,
+    bold: true,
+    color: kliniOrange,
+    align: "center",
+  });
+
   if (data.ageBasedPricingCopay && data.ageBasedPricingCopay.length > 0) {
-    const planColumns = Object.keys(data.ageBasedPricingCopay[0]).filter(key => key !== 'ageRange');
-    
-    // Dividir planos em grupos de 3 para formato retrato
-    const plansPerSlide = 3;
-    for (let i = 0; i < planColumns.length; i += plansPerSlide) {
-      const columnsSlice = planColumns.slice(i, i + plansPerSlide);
-      
-      const slideAge = pptx.addSlide();
-      slideAge.background = { color: "FFFFFF" };
+    const planColumns = Object.keys(data.ageBasedPricingCopay[0]).filter((key) => key !== "ageRange");
+    const ageRowsCopay: any[] = [
+      [
+        { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
+        ...planColumns.map((planName) => ({
+          text: planName.substring(0, 12),
+          options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
+        })),
+      ],
+    ];
 
-      slideAge.addText("Valores por Faixa Etária - COM Coparticipação", {
-        x: 0.5,
-        y: 0.5,
-        w: 7.26,
-        h: 0.5,
-        fontSize: 20,
-        bold: true,
-        color: kliniOrange,
-        align: "center",
-      });
-
-      const ageRows = [
-        [
-          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-          ...columnsSlice.map((planName) => ({
-            text: planName.length > 30 ? planName.substring(0, 30) + "..." : planName,
-            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } }
-          }))
-        ],
-      ];
-
-      data.ageBasedPricingCopay.forEach((row, rowIndex) => {
-        const isAlt = rowIndex % 2 === 1;
-        ageRows.push([
-          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-          ...columnsSlice.map(col => ({
-            text: row[col] ? formatCurrency(row[col]) : '-',
-            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } }
-          }))
-        ]);
-      });
-
-      slideAge.addTable(ageRows, {
-        x: 0.3,
-        y: 1.2,
-        w: 7.66,
-        fontSize: 7,
-        border: { pt: 0.5, color: "CCCCCC" },
-        align: "center",
-        colW: [1.5, ...Array(columnsSlice.length).fill((7.66 - 1.5) / columnsSlice.length)]
-      });
-
-      slideAge.addText(
-        "Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora. No caso de implantação do contrato, qualquer incompatibilidade implicará na inviabilidade ou reanálise da proposta.",
-        {
-          x: 0.5,
-          y: 10.8,
-          w: 7.26,
-          h: 0.6,
-          fontSize: 7,
-          color: "666666",
-          align: "center",
-          valign: "top",
-        }
-      );
-      
-      slideAge.addText("ANS - Nº 42.202-9", {
-        x: 6.5,
-        y: 0.2,
-        w: 1.5,
-        h: 0.3,
-        fontSize: 9,
-        color: "333333",
-        align: "right",
-      });
-    }
-  }
-
-  // Slides de Valores por Faixa Etária - Planos SEM Coparticipação
-  if (data.ageBasedPricingNoCopay && data.ageBasedPricingNoCopay.length > 0) {
-    const planColumns = Object.keys(data.ageBasedPricingNoCopay[0]).filter(key => key !== 'ageRange');
-    
-    // Dividir planos em grupos de 3 para formato retrato
-    const plansPerSlide = 3;
-    for (let i = 0; i < planColumns.length; i += plansPerSlide) {
-      const columnsSlice = planColumns.slice(i, i + plansPerSlide);
-      
-      const slideAge = pptx.addSlide();
-      slideAge.background = { color: "FFFFFF" };
-
-      slideAge.addText("Valores por Faixa Etária - SEM Coparticipação", {
-        x: 0.5,
-        y: 0.5,
-        w: 7.26,
-        h: 0.5,
-        fontSize: 20,
-        bold: true,
-        color: kliniOrange,
-        align: "center",
-      });
-
-      const ageRows = [
-        [
-          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } } },
-          ...columnsSlice.map((planName) => ({
-            text: planName.length > 30 ? planName.substring(0, 30) + "..." : planName,
-            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal } }
-          }))
-        ],
-      ];
-
-      data.ageBasedPricingNoCopay.forEach((row, rowIndex) => {
-        const isAlt = rowIndex % 2 === 1;
-        ageRows.push([
-          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } } },
-          ...columnsSlice.map(col => ({
-            text: row[col] ? formatCurrency(row[col]) : '-',
-            options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" } }
-          }))
-        ]);
-      });
-
-      slideAge.addTable(ageRows, {
-        x: 0.3,
-        y: 1.2,
-        w: 7.66,
-        fontSize: 7,
-        border: { pt: 0.5, color: "CCCCCC" },
-        align: "center",
-        colW: [1.5, ...Array(columnsSlice.length).fill((7.66 - 1.5) / columnsSlice.length)]
-      });
-
-      slideAge.addText(
-        "Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora. No caso de implantação do contrato, qualquer incompatibilidade implicará na inviabilidade ou reanálise da proposta.",
-        {
-          x: 0.5,
-          y: 10.8,
-          w: 7.26,
-          h: 0.6,
-          fontSize: 7,
-          color: "666666",
-          align: "center",
-          valign: "top",
-        }
-      );
-      
-      slideAge.addText("ANS - Nº 42.202-9", {
-        x: 6.5,
-        y: 0.2,
-        w: 1.5,
-        h: 0.3,
-        fontSize: 9,
-        color: "333333",
-        align: "right",
-      });
-    }
-  }
-
-  // Adicionar nota de rodapé em todos os slides de conteúdo
-  [slide2, slide3, slide4].forEach(slide => {
-    slide.addText(
-      "Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora. No caso de implantação do contrato, qualquer incompatibilidade implicará na inviabilidade ou reanálise da proposta.",
-      {
-        x: 0.5,
-        y: 10.8,
-        w: 7.26,
-        h: 0.6,
-        fontSize: 7,
-        color: "666666",
-        align: "center",
-        valign: "top",
-      }
-    );
-    
-    slide.addText("ANS - Nº 42.202-9", {
-      x: 6.5,
-      y: 0.2,
-      w: 1.5,
-      h: 0.3,
-      fontSize: 9,
-      color: "333333",
-      align: "right",
+    data.ageBasedPricingCopay.forEach((row, idx) => {
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+      ageRowsCopay.push([
+        { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+        ...planColumns.map((col) => ({
+          text: row[col] ? formatCurrency(row[col]) : "-",
+          options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 },
+        })),
+      ]);
     });
+
+    const colWidth = (7.26 - 0.8) / planColumns.length;
+    slide4.addTable(ageRowsCopay, {
+      x: 0.5,
+      y: 3.7,
+      w: 7.26,
+      border: { pt: 0.5, color: "CCCCCC" },
+      align: "center",
+      colW: [0.8, ...Array(planColumns.length).fill(colWidth)],
+    });
+  }
+
+  slide4.addText("Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora.", {
+    x: 0.5,
+    y: 10.8,
+    w: 7.26,
+    h: 0.7,
+    fontSize: 6,
+    color: "999999",
+    align: "center",
+    valign: "top",
   });
 
   // Salvar arquivo
-  await pptx.writeFile({ fileName: `Proposta_${data.companyName || 'Klini_Saude'}.pptx` });
+  await pptx.writeFile({ fileName: `Proposta_${data.companyName || "Klini_Saude"}.pptx` });
 };
