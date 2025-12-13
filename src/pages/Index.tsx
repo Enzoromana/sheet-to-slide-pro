@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Download, Presentation } from "lucide-react";
+import { Upload, Download, Presentation, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,7 @@ interface ParsedData {
 const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [logo, setLogo] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,13 +52,10 @@ const Index = () => {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
-      // Parse company info - data is in column B (index 1), rows 2-4 (indices 1-3)
       const companyName = (jsonData[1] as any)?.[1] || "";
       const concessionaire = (jsonData[2] as any)?.[1] || "";
       const broker = (jsonData[3] as any)?.[1] || "";
 
-      // Parse demographics (rows 8-17 in Excel = indices 7-16)
-      // Column layout: B=age range, C-D=titular M/F, E-F=dependente M/F, I-J=total M/F, K=total, L=percentage
       const allDemographics: any[] = [];
       for (let i = 5; i <= 17; i++) {
         const row = jsonData[i] as any[];
@@ -79,8 +77,6 @@ const Index = () => {
         });
       }
 
-      // Parse plans WITH copay (rows 27-34 in Excel = indices 26-33)
-      // Column layout: B=name, E=ANS code, F=per capita, G=estimated invoice
       const allPlansWithCopay: any[] = [];
       for (let i = 25; i <= 33; i++) {
         const row = jsonData[i] as any[];
@@ -95,8 +91,6 @@ const Index = () => {
         });
       }
 
-      // Parse age-based pricing WITH copay (header in row 40 = index 39, data rows 43-52 = indices 42-51)
-      // Header starts at column 2 (index 1)
       const copayAgeHeader = jsonData[38] as any[];
       const copayPlanNames = copayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingCopay: any[] = [];
@@ -112,8 +106,6 @@ const Index = () => {
         allAgeBasedPricingCopay.push(pricing);
       }
 
-      // Parse plans WITHOUT copay (rows 61-68 in Excel = indices 60-67)
-      // Column layout: B=name, E=ANS code, F=per capita, G=estimated invoice
       const allPlansWithoutCopay: any[] = [];
       for (let i = 57; i <= 65; i++) {
         const row = jsonData[i] as any[];
@@ -128,8 +120,6 @@ const Index = () => {
         });
       }
 
-      // Parse age-based pricing WITHOUT copay (header in row 75 = index 74, data rows 78-87 = indices 77-86)
-      // Header starts at column 2 (index 1)
       const noCopayAgeHeader = jsonData[70] as any[];
       const noCopayPlanNames = noCopayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
       const allAgeBasedPricingNoCopay: any[] = [];
@@ -175,6 +165,22 @@ const Index = () => {
     }
   };
 
+  // Handler para upload da capa
+  const handleCoverUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCoverImage(reader.result as string);
+      toast({
+        title: "Capa carregada!",
+        description: "A capa será usada no primeiro slide da apresentação.",
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleExportPPTX = async () => {
     if (!parsedData) return;
 
@@ -184,7 +190,8 @@ const Index = () => {
         description: "Aguarde enquanto preparamos sua apresentação.",
       });
 
-      await exportToPPTX(parsedData);
+      // ✅ CORREÇÃO PRINCIPAL: Passar coverImage para exportToPPTX
+      await exportToPPTX(parsedData, coverImage);
 
       toast({
         title: "PowerPoint gerado com sucesso!",
@@ -286,7 +293,9 @@ const Index = () => {
 
           <Card className="p-8 backdrop-blur-sm bg-card/50 border-2">
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Grid com 3 colunas: Planilha | Capa | Logo */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Upload Planilha */}
                 <div>
                   <label htmlFor="file-upload" className="block mb-2 text-sm font-medium">
                     Upload de Planilha Excel
@@ -315,8 +324,62 @@ const Index = () => {
                   </div>
                 </div>
 
+                {/* Upload Capa da Apresentação */}
+                <div>
+                  <label htmlFor="cover-upload" className="block mb-2 text-sm font-medium">
+                    Capa da Apresentação (Slide 1)
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="cover-upload"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={handleCoverUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      onClick={() => document.getElementById('cover-upload')?.click()}
+                      variant="outline"
+                      className={`w-full h-24 border-2 border-dashed transition-colors ${
+                        coverImage ? 'border-green-500 bg-green-50' : 'hover:border-primary'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <Image className={`h-8 w-8 ${coverImage ? 'text-green-600' : ''}`} />
+                        <span>{coverImage ? "✓ Capa Carregada" : "Upload da Capa"}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {coverImage ? "Clique para alterar" : "PNG, JPG ou WebP"}
+                        </span>
+                      </div>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Logo do Cliente */}
                 <LogoUpload onLogoChange={handleLogoChange} currentLogo={logo} />
               </div>
+
+              {/* Preview da Capa */}
+              {coverImage && (
+                <div className="border rounded-lg p-4 bg-muted/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium">Preview da Capa (Slide 1):</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setCoverImage(null)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      Remover
+                    </Button>
+                  </div>
+                  <img 
+                    src={coverImage} 
+                    alt="Capa da Apresentação" 
+                    className="max-h-64 mx-auto rounded shadow-md"
+                  />
+                </div>
+              )}
 
               {parsedData && (
                 <div className="flex gap-4 pt-4 border-t">
