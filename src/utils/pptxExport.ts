@@ -17,14 +17,7 @@ interface ExportData {
   plansWithoutCopayG?: any[];
   ageBasedPricingCopayG?: any[];
   ageBasedPricingNoCopayG?: any[];
-  // PRODUTOS G - adicionar estas linhas:
-  demographicsG?: any[];
-  plansWithCopayG?: any[];
-  plansWithoutCopayG?: any[];
-  ageBasedPricingCopayG?: any[];
-  ageBasedPricingNoCopayG?: any[];
 }
-
 const formatCurrency = (value: any): string => {
   if (!value) return "R$ 0,00";
   const num = typeof value === "number" ? value : parseFloat(value);
