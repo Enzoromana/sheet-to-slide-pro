@@ -130,7 +130,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     });
   }
 
-  // ==================== SLIDE 2: DADOS + DEMOGRAFIA (ACIMA DE 100 VIDAS) ====================
+  // ==================== SLIDE 2: DADOS + DEMOGRAFIA ====================
   const slide2 = pptx.addSlide();
   slide2.background = { color: white };
 
@@ -185,8 +185,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     color: kliniTeal,
   });
 
-  // Tabela Demografia COM CORES ALTERNADAS
-  const demoRows: any[] = [
+  // Tabela Demografia COM CORES ALTERNADAS - SINTAXE CORRETA
+  const demoRows: any[][] = [
     [
       { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
       { text: "TITULAR M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
@@ -239,7 +239,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     valign: "top",
   });
 
-  // ==================== SLIDE 3: SEM COPARTICIPAÇÃO (ACIMA DE 100 VIDAS) ====================
+  // ==================== SLIDE 3: SEM COPARTICIPAÇÃO ====================
   const slide3 = pptx.addSlide();
   slide3.background = { color: white };
 
@@ -264,7 +264,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     align: "center",
   });
 
-  const noCopayRows: any[] = [
+  const noCopayRows: any[][] = [
     [
       { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
       { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
@@ -304,7 +304,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   if (data.ageBasedPricingNoCopay && data.ageBasedPricingNoCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingNoCopay[0]).filter((key) => key !== "ageRange");
-    const ageRowsNoCopay: any[] = [
+    const ageRowsNoCopay: any[][] = [
       [
         { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
         ...planColumns.map((planName) => ({
@@ -347,7 +347,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     valign: "top",
   });
 
-  // ==================== SLIDE 4: COM COPARTICIPAÇÃO (ACIMA DE 100 VIDAS) ====================
+  // ==================== SLIDE 4: COM COPARTICIPAÇÃO ====================
   const slide4 = pptx.addSlide();
   slide4.background = { color: white };
 
@@ -372,7 +372,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     align: "center",
   });
 
-  const copayRows: any[] = [
+  const copayRows: any[][] = [
     [
       { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
       { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
@@ -412,7 +412,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   if (data.ageBasedPricingCopay && data.ageBasedPricingCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingCopay[0]).filter((key) => key !== "ageRange");
-    const ageRowsCopay: any[] = [
+    const ageRowsCopay: any[][] = [
       [
         { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
         ...planColumns.map((planName) => ({
@@ -455,9 +455,9 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     valign: "top",
   });
 
-  // ==================== SLIDES 5-7: PRODUTOS G (SE INCLUÍDO) ====================
+  // ==================== SLIDES 5-7: PRODUTOS G ====================
   if (includeProductosG && data.demographicsG && data.demographicsG.length > 0) {
-    // SLIDE 5: DADOS + DEMOGRAFIA (PRODUTOS G)
+    // SLIDE 5
     const slide5 = pptx.addSlide();
     slide5.background = { color: white };
 
@@ -482,7 +482,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       color: kliniTeal,
     });
 
-    const demGRows: any[] = [
+    const demGRows: any[][] = [
       [
         { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
         { text: "TITULAR M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
@@ -535,7 +535,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       valign: "top",
     });
 
-    // SLIDE 6: SEM COPARTICIPAÇÃO (PRODUTOS G)
+    // SLIDE 6
     const slide6 = pptx.addSlide();
     slide6.background = { color: white };
 
@@ -561,7 +561,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     });
 
     if (data.plansWithoutCopayG && data.plansWithoutCopayG.length > 0) {
-      const noCopayGRows: any[] = [
+      const noCopayGRows: any[][] = [
         [
           { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
           { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
@@ -601,7 +601,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
       if (data.ageBasedPricingNoCopayG && data.ageBasedPricingNoCopayG.length > 0) {
         const planColumns = Object.keys(data.ageBasedPricingNoCopayG[0]).filter((key) => key !== "ageRange");
-        const ageRowsNoCopayG: any[] = [
+        const ageRowsNoCopayG: any[][] = [
           [
             { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
             ...planColumns.map((planName) => ({
@@ -645,7 +645,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       valign: "top",
     });
 
-    // SLIDE 7: COM COPARTICIPAÇÃO (PRODUTOS G)
+    // SLIDE 7
     const slide7 = pptx.addSlide();
     slide7.background = { color: white };
 
@@ -671,7 +671,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     });
 
     if (data.plansWithCopayG && data.plansWithCopayG.length > 0) {
-      const copayGRows: any[] = [
+      const copayGRows: any[][] = [
         [
           { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
           { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
@@ -711,7 +711,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
       if (data.ageBasedPricingCopayG && data.ageBasedPricingCopayG.length > 0) {
         const planColumns = Object.keys(data.ageBasedPricingCopayG[0]).filter((key) => key !== "ageRange");
-        const ageRowsCopayG: any[] = [
+        const ageRowsCopayG: any[][] = [
           [
             { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
             ...planColumns.map((planName) => ({
