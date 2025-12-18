@@ -33,7 +33,6 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
   const kliniTeal = "1D7874";
   const kliniOrange = "F7931E";
   const lightGray = "F5F5F5";
-  const white = "FFFFFF";
 
   // ==================== SLIDE 1: CAPA ====================
   const slide1 = pptx.addSlide();
@@ -57,14 +56,14 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       fill: { color: "164E4B", transparency: 30 },
       line: { type: "none" },
     });
-    slide1.addText([{ text: "klini", options: { fontSize: 72, bold: true, color: white } }], {
+    slide1.addText([{ text: "klini", options: { fontSize: 72, bold: true, color: "FFFFFF" } }], {
       x: 1.8,
       y: 1.8,
       w: 4.66,
       h: 1.5,
       align: "center",
     });
-    slide1.addText([{ text: "saúde", options: { fontSize: 48, bold: false, color: white } }], {
+    slide1.addText([{ text: "saúde", options: { fontSize: 48, bold: false, color: "FFFFFF" } }], {
       x: 2.3,
       y: 2.8,
       w: 3.66,
@@ -76,7 +75,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       y: 6.8,
       w: 7.26,
       h: 1.0,
-      fill: { color: white },
+      fill: { color: "FFFFFF" },
       line: { type: "none" },
     });
     slide1.addText("PROPOSTA COMERCIAL", {
@@ -105,7 +104,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       w: 2.8,
       h: 0.5,
       fontSize: 16,
-      color: white,
+      color: "FFFFFF",
       align: "center",
       valign: "middle",
       italic: true,
@@ -116,7 +115,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       w: 2.0,
       h: 0.25,
       fontSize: 7,
-      color: white,
+      color: "FFFFFF",
       align: "left",
     });
     slide1.addText("ANS - Nº 42.202-9", {
@@ -125,21 +124,21 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       w: 2.0,
       h: 0.25,
       fontSize: 7,
-      color: white,
+      color: "FFFFFF",
       align: "right",
     });
   }
 
   // ==================== SLIDE 2: DADOS + DEMOGRAFIA ====================
   const slide2 = pptx.addSlide();
-  slide2.background = { color: white };
+  slide2.background = { color: "FFFFFF" };
 
-  slide2.addText("Tabela de Preços - ACIMA DE 100 VIDAS", {
+  slide2.addText("Tabela de Preços", {
     x: 0.5,
     y: 0.3,
     w: 7.26,
     h: 0.4,
-    fontSize: 18,
+    fontSize: 20,
     bold: true,
     color: kliniOrange,
     align: "center",
@@ -185,42 +184,37 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     color: kliniTeal,
   });
 
-  // Tabela Demografia - COM FILLCOLOR EM CELL
+  // TABELA DEMOGRAFIA - ESTRUTURA SIMPLES QUE FUNCIONA
   const demoRows: any[] = [];
-  
-  // Header
-  const headerRow: any[] = [];
-  ["FAIXA ETÁRIA", "TITULAR M", "TITULAR F", "DEP. M", "DEP. F", "AGRE. M", "AGRE. F", "TOTAL M", "TOTAL F", "TOTAL", "%"].forEach(label => {
-    headerRow.push({
-      text: label,
-      options: {
-        bold: true,
-        color: white,
-        fill: kliniTeal,
-        fontSize: 7,
-        border: { pt: 0.5, color: "CCCCCC" }
-      }
-    });
-  });
-  demoRows.push(headerRow);
+  demoRows.push([
+    { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "TITULAR M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "TITULAR F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "DEP. M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "DEP. F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "AGRE. M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "AGRE. F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "TOTAL M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "TOTAL F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+    { text: "%", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+  ]);
 
-  // Dados com cores alternadas
   data.demographics.forEach((row, idx) => {
-    const bgColor = idx % 2 === 0 ? white : lightGray;
-    const dataRow: any[] = [
-      { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.titularM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.titularF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.dependentM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.dependentF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.agregadoM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.agregadoF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.totalM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.totalF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.total || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(row.percentage || "0%"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-    ];
-    demoRows.push(dataRow);
+    const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+    demoRows.push([
+      { text: row.ageRange, options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.titularM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.titularF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.dependentM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.dependentF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.agregadoM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.agregadoF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.totalM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.totalF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.total || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(row.percentage || "0%"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+    ]);
   });
 
   slide2.addTable(demoRows, {
@@ -228,6 +222,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     y: 2.95,
     w: 7.66,
     border: { pt: 0.5, color: "CCCCCC" },
+    fontSize: 7,
     rowH: 0.25,
   });
 
@@ -244,7 +239,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   // ==================== SLIDE 3: SEM COPARTICIPAÇÃO ====================
   const slide3 = pptx.addSlide();
-  slide3.background = { color: white };
+  slide3.background = { color: "FFFFFF" };
 
   slide3.addText("ANS - Nº 42.202-9", {
     x: 6.5,
@@ -256,7 +251,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     align: "right",
   });
 
-  slide3.addText("Planos sem Coparticipação - ACIMA DE 100 VIDAS", {
+  slide3.addText("Planos sem Coparticipação", {
     x: 0.5,
     y: 0.5,
     w: 7.26,
@@ -269,19 +264,19 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   const noCopayRows: any[] = [];
   noCopayRows.push([
-    { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-    { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-    { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-    { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+    { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+    { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+    { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
   ]);
 
   data.plansWithoutCopay.forEach((plan, idx) => {
-    const bgColor = idx % 2 === 0 ? white : lightGray;
+    const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
     noCopayRows.push([
-      { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: plan.name, options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
     ]);
   });
 
@@ -307,22 +302,21 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
   if (data.ageBasedPricingNoCopay && data.ageBasedPricingNoCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingNoCopay[0]).filter((key) => key !== "ageRange");
     const ageRowsNoCopay: any[] = [];
-    
     ageRowsNoCopay.push([
-      { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 } },
       ...planColumns.map((planName) => ({
         text: planName.substring(0, 12),
-        options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+        options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 },
       })),
     ]);
 
     data.ageBasedPricingNoCopay.forEach((row, idx) => {
-      const bgColor = idx % 2 === 0 ? white : lightGray;
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
       ageRowsNoCopay.push([
-        { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: row.ageRange, options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 } },
         ...planColumns.map((col) => ({
           text: row[col] ? formatCurrency(row[col]) : "-",
-          options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+          options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 },
         })),
       ]);
     });
@@ -351,7 +345,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   // ==================== SLIDE 4: COM COPARTICIPAÇÃO ====================
   const slide4 = pptx.addSlide();
-  slide4.background = { color: white };
+  slide4.background = { color: "FFFFFF" };
 
   slide4.addText("ANS - Nº 42.202-9", {
     x: 6.5,
@@ -363,7 +357,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     align: "right",
   });
 
-  slide4.addText("Planos com Coparticipação - ACIMA DE 100 VIDAS", {
+  slide4.addText("Planos com Coparticipação", {
     x: 0.5,
     y: 0.5,
     w: 7.26,
@@ -376,19 +370,19 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   const copayRows: any[] = [];
   copayRows.push([
-    { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-    { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-    { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-    { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+    { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+    { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+    { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
   ]);
 
   data.plansWithCopay.forEach((plan, idx) => {
-    const bgColor = idx % 2 === 0 ? white : lightGray;
+    const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
     copayRows.push([
-      { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: plan.name, options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+      { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
     ]);
   });
 
@@ -414,22 +408,21 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
   if (data.ageBasedPricingCopay && data.ageBasedPricingCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingCopay[0]).filter((key) => key !== "ageRange");
     const ageRowsCopay: any[] = [];
-    
     ageRowsCopay.push([
-      { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 } },
       ...planColumns.map((planName) => ({
         text: planName.substring(0, 12),
-        options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+        options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 },
       })),
     ]);
 
     data.ageBasedPricingCopay.forEach((row, idx) => {
-      const bgColor = idx % 2 === 0 ? white : lightGray;
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
       ageRowsCopay.push([
-        { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: row.ageRange, options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 } },
         ...planColumns.map((col) => ({
           text: row[col] ? formatCurrency(row[col]) : "-",
-          options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+          options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 },
         })),
       ]);
     });
@@ -458,9 +451,9 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   // ==================== SLIDES 5-7: PRODUTOS G ====================
   if (includeProductosG && data.demographicsG && data.demographicsG.length > 0) {
-    // SLIDE 5
+    // SLIDE 5: DEMOGRAFIA PRODUTOS G
     const slide5 = pptx.addSlide();
-    slide5.background = { color: white };
+    slide5.background = { color: "FFFFFF" };
 
     slide5.addText("Tabela de Preços - PRODUTOS G", {
       x: 0.5,
@@ -485,33 +478,33 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
     const demGRows: any[] = [];
     demGRows.push([
-      { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "TITULAR M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "TITULAR F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "DEP. M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "DEP. F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "AGRE. M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "AGRE. F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "TOTAL M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "TOTAL F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "TOTAL", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-      { text: "%", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "TITULAR M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "TITULAR F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "DEP. M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "DEP. F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "AGRE. M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "AGRE. F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "TOTAL M", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "TOTAL F", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "TOTAL", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
+      { text: "%", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 7 } },
     ]);
 
     data.demographicsG.forEach((row, idx) => {
-      const bgColor = idx % 2 === 0 ? white : lightGray;
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
       demGRows.push([
-        { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.titularM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.titularF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.dependentM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.dependentF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.agregadoM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.agregadoF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.totalM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.totalF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.total || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: String(row.percentage || "0%"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: row.ageRange, options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.titularM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.titularF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.dependentM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.dependentF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.agregadoM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.agregadoF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.totalM || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.totalF || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.total || "0"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+        { text: String(row.percentage || "0%"), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
       ]);
     });
 
@@ -520,6 +513,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       y: 1.25,
       w: 7.66,
       border: { pt: 0.5, color: "CCCCCC" },
+      fontSize: 7,
       rowH: 0.25,
     });
 
@@ -534,9 +528,9 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       valign: "top",
     });
 
-    // SLIDE 6
+    // SLIDE 6: SEM COPAY PRODUTOS G
     const slide6 = pptx.addSlide();
-    slide6.background = { color: white };
+    slide6.background = { color: "FFFFFF" };
 
     slide6.addText("ANS - Nº 42.202-9", {
       x: 6.5,
@@ -562,19 +556,19 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     if (data.plansWithoutCopayG && data.plansWithoutCopayG.length > 0) {
       const noCopayGRows: any[] = [];
       noCopayGRows.push([
-        { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+        { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+        { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+        { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
       ]);
 
       data.plansWithoutCopayG.forEach((plan, idx) => {
-        const bgColor = idx % 2 === 0 ? white : lightGray;
+        const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
         noCopayGRows.push([
-          { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-          { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-          { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-          { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: plan.name, options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+          { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+          { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+          { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
         ]);
       });
 
@@ -601,20 +595,20 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
         const planColumns = Object.keys(data.ageBasedPricingNoCopayG[0]).filter((key) => key !== "ageRange");
         const ageRowsNoCopayG: any[] = [];
         ageRowsNoCopayG.push([
-          { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 } },
           ...planColumns.map((planName) => ({
             text: planName.substring(0, 12),
-            options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+            options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 },
           })),
         ]);
 
         data.ageBasedPricingNoCopayG.forEach((row, idx) => {
-          const bgColor = idx % 2 === 0 ? white : lightGray;
+          const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
           ageRowsNoCopayG.push([
-            { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+            { text: row.ageRange, options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 } },
             ...planColumns.map((col) => ({
               text: row[col] ? formatCurrency(row[col]) : "-",
-              options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+              options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 },
             })),
           ]);
         });
@@ -642,9 +636,9 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       valign: "top",
     });
 
-    // SLIDE 7
+    // SLIDE 7: COM COPAY PRODUTOS G
     const slide7 = pptx.addSlide();
-    slide7.background = { color: white };
+    slide7.background = { color: "FFFFFF" };
 
     slide7.addText("ANS - Nº 42.202-9", {
       x: 6.5,
@@ -670,19 +664,19 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     if (data.plansWithCopayG && data.plansWithCopayG.length > 0) {
       const copayGRows: any[] = [];
       copayGRows.push([
-        { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
-        { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+        { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+        { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
+        { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 8 } },
       ]);
 
       data.plansWithCopayG.forEach((plan, idx) => {
-        const bgColor = idx % 2 === 0 ? white : lightGray;
+        const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
         copayGRows.push([
-          { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-          { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-          { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
-          { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: plan.name, options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+          { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+          { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
+          { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: bgColor, fontSize: 7 } },
         ]);
       });
 
@@ -709,20 +703,20 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
         const planColumns = Object.keys(data.ageBasedPricingCopayG[0]).filter((key) => key !== "ageRange");
         const ageRowsCopayG: any[] = [];
         ageRowsCopayG.push([
-          { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 } },
           ...planColumns.map((planName) => ({
             text: planName.substring(0, 12),
-            options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+            options: { bold: true, color: "FFFFFF", fill: kliniTeal, fontSize: 6 },
           })),
         ]);
 
         data.ageBasedPricingCopayG.forEach((row, idx) => {
-          const bgColor = idx % 2 === 0 ? white : lightGray;
+          const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
           ageRowsCopayG.push([
-            { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+            { text: row.ageRange, options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 } },
             ...planColumns.map((col) => ({
               text: row[col] ? formatCurrency(row[col]) : "-",
-              options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+              options: { bold: false, color: "333333", fill: bgColor, fontSize: 6 },
             })),
           ]);
         });
