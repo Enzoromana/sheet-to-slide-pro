@@ -10,7 +10,6 @@ import { PricingTable } from "@/components/PricingTable";
 import { DemographicsTable } from "@/components/DemographicsTable";
 import { CompanyHeader } from "@/components/CompanyHeader";
 import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
-import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 const COVER_DEC_2025 = null;
 
@@ -395,9 +394,31 @@ const Index = () => {
                   </div>
 
                   {/* Botões Trocar/Remover */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <CoverImageUpload onImageChange={handleCoverImageChange} currentImage={coverImage} />
-                    <button
+                 <div className="grid grid-cols-2 gap-3">
+  <button
+    onClick={() => document.getElementById("cover-upload")?.click()}
+    className="px-4 py-2 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-300 flex items-center justify-center gap-2 font-semibold text-sm"
+  >
+    <Upload className="h-4 w-4" />
+    Trocar
+  </button>
+  <input
+    id="cover-upload"
+    type="file"
+    accept="image/*"
+    onChange={(e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          handleCoverImageChange(event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    }}
+    className="hidden"
+  />
+  <button
                       onClick={handleRemoveCover}
                       className="px-4 py-2 border-2 border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors duration-300 flex items-center justify-center gap-2 font-semibold text-sm"
                     >
