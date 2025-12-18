@@ -57,14 +57,14 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       fill: { color: "164E4B", transparency: 30 },
       line: { type: "none" },
     });
-    slide1.addText([{ text: "klini", options: { fontSize: 72, bold: true, color: "FFFFFF" } }], {
+    slide1.addText([{ text: "klini", options: { fontSize: 72, bold: true, color: white } }], {
       x: 1.8,
       y: 1.8,
       w: 4.66,
       h: 1.5,
       align: "center",
     });
-    slide1.addText([{ text: "saúde", options: { fontSize: 48, bold: false, color: "FFFFFF" } }], {
+    slide1.addText([{ text: "saúde", options: { fontSize: 48, bold: false, color: white } }], {
       x: 2.3,
       y: 2.8,
       w: 3.66,
@@ -185,38 +185,42 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     color: kliniTeal,
   });
 
-  // Tabela Demografia COM CORES ALTERNADAS - SINTAXE CORRETA
-  const demoRows: any[][] = [
-    [
-      { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "TITULAR M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "TITULAR F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "DEP. M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "DEP. F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "AGRE. M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "AGRE. F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "TOTAL M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "TOTAL F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "TOTAL", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      { text: "%", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-    ],
-  ];
+  // Tabela Demografia - COM FILLCOLOR EM CELL
+  const demoRows: any[] = [];
+  
+  // Header
+  const headerRow: any[] = [];
+  ["FAIXA ETÁRIA", "TITULAR M", "TITULAR F", "DEP. M", "DEP. F", "AGRE. M", "AGRE. F", "TOTAL M", "TOTAL F", "TOTAL", "%"].forEach(label => {
+    headerRow.push({
+      text: label,
+      options: {
+        bold: true,
+        color: white,
+        fill: kliniTeal,
+        fontSize: 7,
+        border: { pt: 0.5, color: "CCCCCC" }
+      }
+    });
+  });
+  demoRows.push(headerRow);
 
+  // Dados com cores alternadas
   data.demographics.forEach((row, idx) => {
     const bgColor = idx % 2 === 0 ? white : lightGray;
-    demoRows.push([
-      { text: row.ageRange, options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.titularM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.titularF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.dependentM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.dependentF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.agregadoM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.agregadoF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.totalM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.totalF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.total || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(row.percentage || "0%"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-    ]);
+    const dataRow: any[] = [
+      { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.titularM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.titularF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.dependentM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.dependentF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.agregadoM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.agregadoF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.totalM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.totalF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.total || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(row.percentage || "0%"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+    ];
+    demoRows.push(dataRow);
   });
 
   slide2.addTable(demoRows, {
@@ -224,7 +228,6 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     y: 2.95,
     w: 7.66,
     border: { pt: 0.5, color: "CCCCCC" },
-    fontSize: 7,
     rowH: 0.25,
   });
 
@@ -264,22 +267,21 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     align: "center",
   });
 
-  const noCopayRows: any[][] = [
-    [
-      { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-      { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-      { text: "PER CAPITA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-      { text: "FATURA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-    ],
-  ];
+  const noCopayRows: any[] = [];
+  noCopayRows.push([
+    { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+  ]);
 
   data.plansWithoutCopay.forEach((plan, idx) => {
     const bgColor = idx % 2 === 0 ? white : lightGray;
     noCopayRows.push([
-      { text: plan.name, options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(plan.ansCode), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
     ]);
   });
 
@@ -304,23 +306,23 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   if (data.ageBasedPricingNoCopay && data.ageBasedPricingNoCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingNoCopay[0]).filter((key) => key !== "ageRange");
-    const ageRowsNoCopay: any[][] = [
-      [
-        { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
-        ...planColumns.map((planName) => ({
-          text: planName.substring(0, 12),
-          options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 },
-        })),
-      ],
-    ];
+    const ageRowsNoCopay: any[] = [];
+    
+    ageRowsNoCopay.push([
+      { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+      ...planColumns.map((planName) => ({
+        text: planName.substring(0, 12),
+        options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+      })),
+    ]);
 
     data.ageBasedPricingNoCopay.forEach((row, idx) => {
       const bgColor = idx % 2 === 0 ? white : lightGray;
       ageRowsNoCopay.push([
-        { text: row.ageRange, options: { color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+        { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
         ...planColumns.map((col) => ({
           text: row[col] ? formatCurrency(row[col]) : "-",
-          options: { color: "333333", fill: { color: bgColor }, fontSize: 6 },
+          options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
         })),
       ]);
     });
@@ -372,22 +374,21 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     align: "center",
   });
 
-  const copayRows: any[][] = [
-    [
-      { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-      { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-      { text: "PER CAPITA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-      { text: "FATURA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-    ],
-  ];
+  const copayRows: any[] = [];
+  copayRows.push([
+    { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+    { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+  ]);
 
   data.plansWithCopay.forEach((plan, idx) => {
     const bgColor = idx % 2 === 0 ? white : lightGray;
     copayRows.push([
-      { text: plan.name, options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: String(plan.ansCode), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
     ]);
   });
 
@@ -412,23 +413,23 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
   if (data.ageBasedPricingCopay && data.ageBasedPricingCopay.length > 0) {
     const planColumns = Object.keys(data.ageBasedPricingCopay[0]).filter((key) => key !== "ageRange");
-    const ageRowsCopay: any[][] = [
-      [
-        { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
-        ...planColumns.map((planName) => ({
-          text: planName.substring(0, 12),
-          options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 },
-        })),
-      ],
-    ];
+    const ageRowsCopay: any[] = [];
+    
+    ageRowsCopay.push([
+      { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+      ...planColumns.map((planName) => ({
+        text: planName.substring(0, 12),
+        options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+      })),
+    ]);
 
     data.ageBasedPricingCopay.forEach((row, idx) => {
       const bgColor = idx % 2 === 0 ? white : lightGray;
       ageRowsCopay.push([
-        { text: row.ageRange, options: { color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+        { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
         ...planColumns.map((col) => ({
           text: row[col] ? formatCurrency(row[col]) : "-",
-          options: { color: "333333", fill: { color: bgColor }, fontSize: 6 },
+          options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
         })),
       ]);
     });
@@ -482,36 +483,35 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       color: kliniTeal,
     });
 
-    const demGRows: any[][] = [
-      [
-        { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "TITULAR M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "TITULAR F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "DEP. M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "DEP. F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "AGRE. M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "AGRE. F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "TOTAL M", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "TOTAL F", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "TOTAL", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-        { text: "%", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 7 } },
-      ],
-    ];
+    const demGRows: any[] = [];
+    demGRows.push([
+      { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "TITULAR M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "TITULAR F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "DEP. M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "DEP. F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "AGRE. M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "AGRE. F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "TOTAL M", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "TOTAL F", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "TOTAL", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+      { text: "%", options: { bold: true, color: white, fill: kliniTeal, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+    ]);
 
     data.demographicsG.forEach((row, idx) => {
       const bgColor = idx % 2 === 0 ? white : lightGray;
       demGRows.push([
-        { text: row.ageRange, options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.titularM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.titularF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.dependentM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.dependentF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.agregadoM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.agregadoF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.totalM || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.totalF || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.total || "0"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(row.percentage || "0%"), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.titularM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.titularF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.dependentM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.dependentF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.agregadoM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.agregadoF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.totalM || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.totalF || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.total || "0"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: String(row.percentage || "0%"), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
       ]);
     });
 
@@ -520,7 +520,6 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       y: 1.25,
       w: 7.66,
       border: { pt: 0.5, color: "CCCCCC" },
-      fontSize: 7,
       rowH: 0.25,
     });
 
@@ -561,22 +560,21 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     });
 
     if (data.plansWithoutCopayG && data.plansWithoutCopayG.length > 0) {
-      const noCopayGRows: any[][] = [
-        [
-          { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-          { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-          { text: "PER CAPITA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-          { text: "FATURA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-        ],
-      ];
+      const noCopayGRows: any[] = [];
+      noCopayGRows.push([
+        { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+      ]);
 
       data.plansWithoutCopayG.forEach((plan, idx) => {
         const bgColor = idx % 2 === 0 ? white : lightGray;
         noCopayGRows.push([
-          { text: plan.name, options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-          { text: String(plan.ansCode), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-          { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-          { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+          { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
         ]);
       });
 
@@ -601,23 +599,22 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
       if (data.ageBasedPricingNoCopayG && data.ageBasedPricingNoCopayG.length > 0) {
         const planColumns = Object.keys(data.ageBasedPricingNoCopayG[0]).filter((key) => key !== "ageRange");
-        const ageRowsNoCopayG: any[][] = [
-          [
-            { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
-            ...planColumns.map((planName) => ({
-              text: planName.substring(0, 12),
-              options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 },
-            })),
-          ],
-        ];
+        const ageRowsNoCopayG: any[] = [];
+        ageRowsNoCopayG.push([
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+          ...planColumns.map((planName) => ({
+            text: planName.substring(0, 12),
+            options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+          })),
+        ]);
 
         data.ageBasedPricingNoCopayG.forEach((row, idx) => {
           const bgColor = idx % 2 === 0 ? white : lightGray;
           ageRowsNoCopayG.push([
-            { text: row.ageRange, options: { color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+            { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
             ...planColumns.map((col) => ({
               text: row[col] ? formatCurrency(row[col]) : "-",
-              options: { color: "333333", fill: { color: bgColor }, fontSize: 6 },
+              options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
             })),
           ]);
         });
@@ -671,22 +668,21 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     });
 
     if (data.plansWithCopayG && data.plansWithCopayG.length > 0) {
-      const copayGRows: any[][] = [
-        [
-          { text: "PLANO", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-          { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-          { text: "PER CAPITA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-          { text: "FATURA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 8 } },
-        ],
-      ];
+      const copayGRows: any[] = [];
+      copayGRows.push([
+        { text: "PLANO", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "CÓDIGO ANS", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "PER CAPITA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+        { text: "FATURA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 8, border: { pt: 0.5, color: "CCCCCC" } } },
+      ]);
 
       data.plansWithCopayG.forEach((plan, idx) => {
         const bgColor = idx % 2 === 0 ? white : lightGray;
         copayGRows.push([
-          { text: plan.name, options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-          { text: String(plan.ansCode), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-          { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-          { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+          { text: plan.name, options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: String(plan.ansCode), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: formatCurrency(plan.perCapita), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
+          { text: formatCurrency(plan.estimatedInvoice), options: { color: "333333", fill: bgColor, fontSize: 7, border: { pt: 0.5, color: "CCCCCC" } } },
         ]);
       });
 
@@ -711,23 +707,22 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
 
       if (data.ageBasedPricingCopayG && data.ageBasedPricingCopayG.length > 0) {
         const planColumns = Object.keys(data.ageBasedPricingCopayG[0]).filter((key) => key !== "ageRange");
-        const ageRowsCopayG: any[][] = [
-          [
-            { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 } },
-            ...planColumns.map((planName) => ({
-              text: planName.substring(0, 12),
-              options: { bold: true, color: white, fill: { color: kliniTeal }, fontSize: 6 },
-            })),
-          ],
-        ];
+        const ageRowsCopayG: any[] = [];
+        ageRowsCopayG.push([
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
+          ...planColumns.map((planName) => ({
+            text: planName.substring(0, 12),
+            options: { bold: true, color: white, fill: kliniTeal, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
+          })),
+        ]);
 
         data.ageBasedPricingCopayG.forEach((row, idx) => {
           const bgColor = idx % 2 === 0 ? white : lightGray;
           ageRowsCopayG.push([
-            { text: row.ageRange, options: { color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+            { text: row.ageRange, options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } } },
             ...planColumns.map((col) => ({
               text: row[col] ? formatCurrency(row[col]) : "-",
-              options: { color: "333333", fill: { color: bgColor }, fontSize: 6 },
+              options: { color: "333333", fill: bgColor, fontSize: 6, border: { pt: 0.5, color: "CCCCCC" } },
             })),
           ]);
         });
