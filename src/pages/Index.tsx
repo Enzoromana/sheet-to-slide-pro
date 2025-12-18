@@ -10,14 +10,9 @@ import { PricingTable } from "@/components/PricingTable";
 import { DemographicsTable } from "@/components/DemographicsTable";
 import { CompanyHeader } from "@/components/CompanyHeader";
 import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
+import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
-const COVER_DEC_2025 = null;
-
-interface ParsedData {
-  companyName: string;
-  concessionaire: string;
-  broker: string;
-  emissionDate: string;
+import COVER_DEC_2025 from "@/assets/covers/cover_dezembro_2025.png";
   validityDate: string;
   demographics: any[];
   plansWithCopay: any[];
