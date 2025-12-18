@@ -12,7 +12,7 @@ import { CompanyHeader } from "@/components/CompanyHeader";
 import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
 import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
-import COVER_DEC_2025 from "@/assets/covers/cover_dezembro_2025.png";
+const COVER_DEC_2025 = null;
 
 interface ParsedData {
   companyName: string;
@@ -35,7 +35,7 @@ interface ParsedData {
 
 const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(COVER_DEC_2025);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const [includeProductosG, setIncludeProductosG] = useState(false);
   const { toast } = useToast();
 
