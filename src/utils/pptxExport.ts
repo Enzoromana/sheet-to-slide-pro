@@ -11,6 +11,12 @@ interface ExportData {
   plansWithoutCopay: any[];
   ageBasedPricingCopay: any[];
   ageBasedPricingNoCopay: any[];
+  // PRODUTOS G
+  demographicsG?: any[];
+  plansWithCopayG?: any[];
+  plansWithoutCopayG?: any[];
+  ageBasedPricingCopayG?: any[];
+  ageBasedPricingNoCopayG?: any[];
 }
 
 const formatPercentage = (value: any): string => {
@@ -22,7 +28,7 @@ const formatPercentage = (value: any): string => {
   return `${Math.round(num * 100)}%`;
 };
 
-export const exportToPPTX = async (data: ExportData, coverImage?: string | null) => {
+export const exportToPPTX = async (data: ExportData, coverImage?: string | null, includeProductosG: boolean = false) => {
   const pptx = new pptxgen();
 
   // Set portrait layout: 20.99cm x 29.704cm (8.26" x 11.69")
