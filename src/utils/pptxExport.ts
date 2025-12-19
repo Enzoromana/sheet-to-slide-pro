@@ -573,6 +573,174 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     );
   }
 
+  // ==================== PRODUTOS G - SEM COPARTICIPAÇÃO ====================
+  if (includeProductosG && data.plansWithoutCopayG && data.plansWithoutCopayG.length > 0) {
+    const slideG1 = pptx.addSlide();
+    slideG1.background = { color: "FFFFFF" };
+
+    slideG1.addText("ANS - Nº 42.202-9", {
+      x: 6.5, y: 0.2, w: 1.5, h: 0.3,
+      fontSize: 9, color: "333333", align: "right",
+    });
+
+    slideG1.addText("PRODUTOS G - Planos sem Coparticipação", {
+      x: 0.5, y: 0.5, w: 7.26, h: 0.4,
+      fontSize: 14, bold: true, color: kliniOrange, align: "center",
+    });
+
+    const noCopayRowsG: any[] = [
+      [
+        { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      ],
+    ];
+
+    data.plansWithoutCopayG.forEach((plan, idx) => {
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+      noCopayRowsG.push([
+        { text: plan.name, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      ]);
+    });
+
+    slideG1.addTable(noCopayRowsG, {
+      x: 0.5, y: 1.1, w: 7.26,
+      border: { pt: 0.5, color: "CCCCCC" },
+      align: "center",
+    });
+
+    if (data.ageBasedPricingNoCopayG && data.ageBasedPricingNoCopayG.length > 0) {
+      slideG1.addText("Valores por Faixa Etária - SEM Coparticipação", {
+        x: 0.5, y: 3.0, w: 7.26, h: 0.35,
+        fontSize: 11, bold: true, color: kliniOrange, align: "center",
+      });
+
+      const planColumnsG = Object.keys(data.ageBasedPricingNoCopayG[0]).filter((key) => key !== "ageRange");
+      const ageRowsNoCopayG: any[] = [
+        [
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
+          ...planColumnsG.map((planName) => ({
+            text: planName.substring(0, 12),
+            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
+          })),
+        ],
+      ];
+
+      data.ageBasedPricingNoCopayG.forEach((row, idx) => {
+        const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+        ageRowsNoCopayG.push([
+          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+          ...planColumnsG.map((col) => ({
+            text: row[col] ? formatCurrency(row[col]) : "-",
+            options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 },
+          })),
+        ]);
+      });
+
+      const colWidthG = (7.26 - 0.8) / planColumnsG.length;
+      slideG1.addTable(ageRowsNoCopayG, {
+        x: 0.5, y: 3.5, w: 7.26,
+        border: { pt: 0.5, color: "CCCCCC" },
+        align: "center",
+        colW: [0.8, ...Array(planColumnsG.length).fill(colWidthG)],
+      });
+    }
+
+    slideG1.addText("Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora.", {
+      x: 0.5, y: 10.8, w: 7.26, h: 0.7,
+      fontSize: 6, color: "999999", align: "center", valign: "top",
+    });
+  }
+
+  // ==================== PRODUTOS G - COM COPARTICIPAÇÃO ====================
+  if (includeProductosG && data.plansWithCopayG && data.plansWithCopayG.length > 0) {
+    const slideG2 = pptx.addSlide();
+    slideG2.background = { color: "FFFFFF" };
+
+    slideG2.addText("ANS - Nº 42.202-9", {
+      x: 6.5, y: 0.2, w: 1.5, h: 0.3,
+      fontSize: 9, color: "333333", align: "right",
+    });
+
+    slideG2.addText("PRODUTOS G - Planos com Coparticipação", {
+      x: 0.5, y: 0.5, w: 7.26, h: 0.4,
+      fontSize: 14, bold: true, color: kliniOrange, align: "center",
+    });
+
+    const copayRowsG: any[] = [
+      [
+        { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      ],
+    ];
+
+    data.plansWithCopayG.forEach((plan, idx) => {
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+      copayRowsG.push([
+        { text: plan.name, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      ]);
+    });
+
+    slideG2.addTable(copayRowsG, {
+      x: 0.5, y: 1.1, w: 7.26,
+      border: { pt: 0.5, color: "CCCCCC" },
+      align: "center",
+    });
+
+    if (data.ageBasedPricingCopayG && data.ageBasedPricingCopayG.length > 0) {
+      slideG2.addText("Valores por Faixa Etária - COM Coparticipação", {
+        x: 0.5, y: 3.0, w: 7.26, h: 0.35,
+        fontSize: 11, bold: true, color: kliniOrange, align: "center",
+      });
+
+      const planColumnsG2 = Object.keys(data.ageBasedPricingCopayG[0]).filter((key) => key !== "ageRange");
+      const ageRowsCopayG: any[] = [
+        [
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
+          ...planColumnsG2.map((planName) => ({
+            text: planName.substring(0, 12),
+            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
+          })),
+        ],
+      ];
+
+      data.ageBasedPricingCopayG.forEach((row, idx) => {
+        const bgColor = idx % 2 === 0 ? "FFFFFF" : lightGray;
+        ageRowsCopayG.push([
+          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+          ...planColumnsG2.map((col) => ({
+            text: row[col] ? formatCurrency(row[col]) : "-",
+            options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 },
+          })),
+        ]);
+      });
+
+      const colWidthG2 = (7.26 - 0.8) / planColumnsG2.length;
+      slideG2.addTable(ageRowsCopayG, {
+        x: 0.5, y: 3.5, w: 7.26,
+        border: { pt: 0.5, color: "CCCCCC" },
+        align: "center",
+        colW: [0.8, ...Array(planColumnsG2.length).fill(colWidthG2)],
+      });
+    }
+
+    slideG2.addText("Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora.", {
+      x: 0.5, y: 10.8, w: 7.26, h: 0.7,
+      fontSize: 6, color: "999999", align: "center", valign: "top",
+    });
+  }
+
   // Salvar arquivo
+
   await pptx.writeFile({ fileName: `Proposta_${data.companyName || 'Klini_Saude'}.pptx` });
 };
+
