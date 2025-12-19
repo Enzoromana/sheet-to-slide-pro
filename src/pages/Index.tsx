@@ -148,7 +148,63 @@ const Index = () => {
         allAgeBasedPricingNoCopay.push(pricing);
       }
 
-      const emissionDate = new Date().toLocaleDateString('pt-BR');
+      // ==================== PARSE PRODUTOS G ====================
+      let plansWithCopayG: any[] = [];
+      let plansWithoutCopayG: any[] = [];
+      let ageBasedPricingCopayG: any[] = [];
+      let ageBasedPricingNoCopayG: any[] = [];
+
+      if (workbook.SheetNames.includes("PRODUTOS G")) {
+        const sheetG = workbook.Sheets["PRODUTOS G"];
+        const jsonDataG = XLSX.utils.sheet_to_json(sheetG, { header: 1, defval: "" }) as any[][];
+
+        // Plans WITH copay - PRODUTOS G
+        for (let i = 26; i <= 33; i++) {
+          const row = jsonDataG[i] as any[];
+          if (!row || !row[1]) continue;
+          const planName = String(row[1]).trim();
+          if (!planName.startsWith("KLINI")) continue;
+          plansWithCopayG.push({
+            name: planName,
+            ansCode: String(row[4] || '').trim(),
+            perCapita: parseCurrency(row[5]) || 0,
+            estimatedInvoice: parseCurrency(row[6]) || 0,
+          });
+        }
+
+        // Age pricing WITH copay - PRODUTOS G
+        const copayAgeHeaderG = jsonDataG[38] as any[];
+        if (copayAgeHeaderG) {
+          const copayPlanNamesG = copayAgeHeaderG.slice(2).filter((name: string) => name && String(name).trim() !== "");
+          for (let i = 40; i <= 49; i++) {
+            const row = jsonDataG[i] as any[];
+            if (!row || !row[1]) continue;
+            const ageRange = String(row[1]).trim();
+            if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
+            const pricing: any = { ageRange };
+            copayPlanNamesG.forEach((planName: string, idx: number) => {
+              pricing[planName] = parseCurrency(row[idx + 2]) || 0;
+            });
+            ageBasedPricingCopayG.push(pricing);
+          }
+        }
+
+        // Plans WITHOUT copay - PRODUTOS G
+        for (let i = 58; i <= 65; i++) {
+          const row = jsonDataG[i] as any[];
+          if (!row || !row[1]) continue;
+          const planName = String(row[1]).trim();
+          if (!planName.startsWith("KLINI")) continue;
+          plansWithoutCopayG.push({
+            name: planName,
+            ansCode: String(row[4] || '').trim(),
+(Get-Content "src\pages\Index.tsx" -Raw) -replace 'ageBasedPricingNoCopay: allAgeBasedPricingNoCopay,\s*\}\);', @'
+ageBasedPricingNoCopay: allAgeBasedPricingNoCopay,
+        plansWithCopayG,
+        plansWithoutCopayG,
+        ageBasedPricingCopayG,
+        ageBasedPricingNoCopayG,
+      });
       const validityDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR');
 
       setParsedData({
@@ -452,6 +508,7 @@ const Index = () => {
 };
 
 export default Index;
+
 
 
 
