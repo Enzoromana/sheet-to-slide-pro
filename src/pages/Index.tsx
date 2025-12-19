@@ -32,6 +32,7 @@ const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER_IMAGE);
   const { toast } = useToast();
+  const [includeProductosG, setIncludeProductosG] = useState(false);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -186,7 +187,7 @@ const Index = () => {
         description: "Aguarde enquanto preparamos sua apresentaÃ§Ã£o.",
       });
 
-      await exportToPPTX(parsedData, coverImage);
+      await exportToPPTX(parsedData, coverImage, includeProductosG);
 
       toast({
         title: "PowerPoint gerado com sucesso!",
@@ -343,7 +344,22 @@ const Index = () => {
                       <Download className="h-6 w-6 mr-3" />
                       Exportar para PDF
                     </Button>
-                    <Button
+                    {/* Checkbox PRODUTOS G */}
+                  {parsedData?.plansWithCopayG && parsedData.plansWithCopayG.length > 0 && (
+                    <div className="flex items-center gap-2 mb-4">
+                      <input
+                        type="checkbox"
+                        id="includeProductosG"
+                        checked={includeProductosG}
+                        onChange={(e) => setIncludeProductosG(e.target.checked)}
+                        className="w-4 h-4"
+                      />
+                      <label htmlFor="includeProductosG" className="text-sm font-medium">
+                        Incluir PRODUTOS G na apresentação
+                      </label>
+                    </div>
+                  )}
+                  <Button
                       onClick={handleExportPPTX}
                       className="h-14 bg-gradient-to-r from-[#F7931E] to-[#e67e0a] hover:from-[#e67e0a] hover:to-[#F7931E] text-white shadow-lg hover:shadow-xl transition-all duration-300 text-lg font-semibold"
                       size="lg"
@@ -436,3 +452,7 @@ const Index = () => {
 };
 
 export default Index;
+
+
+
+
