@@ -84,19 +84,41 @@ const Index = () => {
       const plans: any[] = [];
       if (startIdx === -1) return plans;
 
-      // Plans usually start 3 rows after the section header (e.g., Header -> Empty -> Table Header -> Plan 1)
+      let ansColIdx = 4;
+      let perCapitaColIdx = 5;
+      let invoiceColIdx = 6;
+
+      // Find column headers near the section start
+      for (let i = startIdx; i < startIdx + 5; i++) {
+        const row = jsonData[i] as any[];
+        if (!row) continue;
+
+        const ansIdx = row.findIndex(c => String(c).toUpperCase().includes("REGISTRO ANS") || String(c).toUpperCase().includes("CÓDIGO ANS"));
+        const perCapitaIdx = row.findIndex(c => String(c).toUpperCase().includes("VALOR PER CAPITA") || String(c).toUpperCase().includes("PER CAPITA"));
+        const invoiceIdx = row.findIndex(c => String(c).toUpperCase().includes("FATURA ESTIMADA") || String(c).toUpperCase().includes("FATURA"));
+
+        if (ansIdx !== -1) ansColIdx = ansIdx;
+        if (perCapitaIdx !== -1) perCapitaColIdx = perCapitaIdx;
+        if (invoiceIdx !== -1) invoiceColIdx = invoiceIdx;
+
+        if (ansIdx !== -1 || perCapitaIdx !== -1 || invoiceIdx !== -1) break;
+      }
+
+      // Plans usually start after the table header
       for (let i = startIdx + 1; i < (endIdx !== -1 ? endIdx : jsonData.length); i++) {
         const row = jsonData[i] as any[];
         if (!row || !row[1]) continue;
         const planName = String(row[1]).trim();
+
+        // Stop if we hit the next section (Age-based pricing often follows)
         if (planName.toUpperCase().includes("FAIXA ETÁRIA")) break;
         if (!planName.startsWith("KLINI")) continue;
 
         plans.push({
           name: planName,
-          ansCode: String(row[4] || '').trim(),
-          perCapita: parseCurrency(row[5]) || 0,
-          estimatedInvoice: parseCurrency(row[6]) || 0,
+          ansCode: String(row[ansColIdx] || '').trim(),
+          perCapita: parseCurrency(row[perCapitaColIdx]) || 0,
+          estimatedInvoice: parseCurrency(row[invoiceColIdx]) || 0,
         });
       }
       return plans;
@@ -107,12 +129,15 @@ const Index = () => {
       if (headerIdx === -1) return pricing;
 
       const headerRow = jsonData[headerIdx] as any[];
-      const planNames = (headerRow || []).slice(2).filter((name: string) => name && String(name).trim() !== "");
+      const ageColIdx = headerRow.findIndex(c => String(c).toUpperCase().includes("FAIXA ETÁRIA"));
+      if (ageColIdx === -1) return pricing;
+
+      const planNames = headerRow.slice(ageColIdx + 1).filter((name: string) => name && String(name).trim() !== "");
 
       for (let i = headerIdx + 1; i < headerIdx + 15; i++) {
         const row = jsonData[i] as any[];
-        if (!row || !row[1]) continue;
-        const ageRange = String(row[1]).trim();
+        if (!row || !row[ageColIdx]) continue;
+        const ageRange = String(row[ageColIdx]).trim();
         if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) {
           if (pricing.length > 0) break; // End of table
           continue;
@@ -120,7 +145,7 @@ const Index = () => {
 
         const item: any = { ageRange };
         planNames.forEach((planName: string, idx: number) => {
-          item[planName] = parseCurrency(row[idx + 2]) || 0;
+          item[planName] = parseCurrency(row[ageColIdx + 1 + idx]) || 0;
         });
         pricing.push(item);
       }
