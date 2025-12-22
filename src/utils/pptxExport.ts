@@ -40,7 +40,9 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
   // Helper function for currency formatting
   const formatCurrency = (value: string | number) => {
+    if (value === undefined || value === null) return "R$ 0,00";
     const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d,.-]/g, '').replace(',', '.')) : value;
+    if (isNaN(numValue)) return "R$ 0,00";
     return `R$ ${numValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 

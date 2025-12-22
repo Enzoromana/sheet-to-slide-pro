@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, Download, Presentation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +35,7 @@ interface ParsedData {
 }
 
 const Index = () => {
+  const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [includeProductsG, setIncludeProductsG] = useState(false);
@@ -130,7 +131,30 @@ const Index = () => {
 
     try {
       const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
+      const readWorkbook = XLSX.read(data);
+      setWorkbook(readWorkbook);
+
+      toast({
+        title: "Arquivo carregado!",
+        description: "Agora você pode configurar as opções de exportação.",
+      });
+    } catch (error) {
+      console.error("Error reading file:", error);
+      toast({
+        title: "Erro ao ler arquivo",
+        description: "Verifique se o arquivo está no formato correto.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!workbook) {
+      setParsedData(null);
+      return;
+    }
+
+    try {
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
@@ -187,20 +211,15 @@ const Index = () => {
         mainSheet: mainSheetData,
         productsG: productsGData,
       });
-
-      toast({
-        title: "Arquivo processado com sucesso!",
-        description: "Os dados foram extraídos e formatados.",
-      });
     } catch (error) {
-      console.error("Error parsing file:", error);
+      console.error("Error parsing workbook:", error);
       toast({
-        title: "Erro ao processar arquivo",
-        description: "Verifique se o arquivo está no formato correto.",
+        title: "Erro ao processar dados",
+        description: "Houve um problema ao organizar as informações da planilha.",
         variant: "destructive",
       });
     }
-  };
+  }, [workbook, includeProductsG]);
 
   const handleExportPPTX = async () => {
     if (!parsedData) return;
