@@ -461,7 +461,16 @@ const Index = () => {
                 </h2>
               </div>
 
-              <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl overflow-hidden">
+              <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl overflow-hidden p-0">
+                {coverImage && (
+                  <div className="w-full aspect-[1.414/1] overflow-hidden border-b border-gray-100">
+                    <img
+                      src={coverImage}
+                      alt="Capa da Proposta"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <CompanyHeader
                   companyName={parsedData.companyName}
                   concessionaire={parsedData.concessionaire}

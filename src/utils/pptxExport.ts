@@ -27,6 +27,23 @@ const formatPercentage = (value: any): string => {
   return `${Math.round(num * 100)}%`;
 };
 
+const urlToBase64 = async (url: string): Promise<string> => {
+  if (url.startsWith('data:')) return url;
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    console.error("Erro ao converter imagem em base64:", err);
+    return url;
+  }
+};
+
 export const exportToPPTX = async (data: ExportData, coverImage?: string | null) => {
   const pptx = new pptxgen();
 
@@ -50,8 +67,9 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
   const slide1 = pptx.addSlide();
 
   if (coverImage) {
+    const base64Cover = await urlToBase64(coverImage);
     slide1.addImage({
-      data: coverImage,
+      data: base64Cover,
       x: 0,
       y: 0,
       w: 8.26,
