@@ -1,5 +1,12 @@
 import pptxgen from "pptxgenjs";
 
+interface SheetData {
+  plansWithCopay: any[];
+  plansWithoutCopay: any[];
+  ageBasedPricingCopay: any[];
+  ageBasedPricingNoCopay: any[];
+}
+
 interface ExportData {
   companyName: string;
   concessionaire: string;
@@ -7,16 +14,8 @@ interface ExportData {
   emissionDate: string;
   validityDate: string;
   demographics: any[];
-  plansWithCopay: any[];
-  plansWithoutCopay: any[];
-  ageBasedPricingCopay: any[];
-  ageBasedPricingNoCopay: any[];
-  // PRODUTOS G
-  demographicsG?: any[];
-  plansWithCopayG?: any[];
-  plansWithoutCopayG?: any[];
-  ageBasedPricingCopayG?: any[];
-  ageBasedPricingNoCopayG?: any[];
+  mainSheet: SheetData;
+  productsG?: SheetData;
 }
 
 const formatPercentage = (value: any): string => {
@@ -28,7 +27,7 @@ const formatPercentage = (value: any): string => {
   return `${Math.round(num * 100)}%`;
 };
 
-export const exportToPPTX = async (data: ExportData, coverImage?: string | null, includeProductosG: boolean = false) => {
+export const exportToPPTX = async (data: ExportData, coverImage?: string | null) => {
   const pptx = new pptxgen();
 
   pptx.defineLayout({ name: "PORTRAIT_A4", width: 8.26, height: 11.69 });
@@ -305,8 +304,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     }
   );
 
-  // Slide 3: Planos COM Coparticipação
-  if (data.plansWithCopay && data.plansWithCopay.length > 0) {
+  // Slide 3: Planos COM Coparticipação (Planilha Principal)
+  if (data.mainSheet.plansWithCopay && data.mainSheet.plansWithCopay.length > 0) {
     const slide3 = pptx.addSlide();
     slide3.background = { color: "FFFFFF" };
 
@@ -340,7 +339,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       ],
     ];
 
-    data.plansWithCopay.forEach((plan, index) => {
+    data.mainSheet.plansWithCopay.forEach((plan, index) => {
       const isAlt = index % 2 === 1;
       copayRows.push([
         { text: plan.name, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 7 } },
@@ -369,8 +368,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       align: "center",
     });
 
-    if (data.ageBasedPricingCopay && data.ageBasedPricingCopay.length > 0) {
-      const planColumns = Object.keys(data.ageBasedPricingCopay[0]).filter(key => key !== 'ageRange');
+    if (data.mainSheet.ageBasedPricingCopay && data.mainSheet.ageBasedPricingCopay.length > 0) {
+      const planColumns = Object.keys(data.mainSheet.ageBasedPricingCopay[0]).filter(key => key !== 'ageRange');
 
       const ageRows: any[] = [
         [
@@ -382,7 +381,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
         ],
       ];
 
-      data.ageBasedPricingCopay.forEach((row, rowIndex) => {
+      data.mainSheet.ageBasedPricingCopay.forEach((row, rowIndex) => {
         const isAlt = rowIndex % 2 === 1;
         ageRows.push([
           { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 } },
@@ -420,8 +419,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     );
   }
 
-  // Slide 4: Planos SEM Coparticipação
-  if (data.plansWithoutCopay && data.plansWithoutCopay.length > 0) {
+  // Slide 4: Planos SEM Coparticipação (Planilha Principal)
+  if (data.mainSheet.plansWithoutCopay && data.mainSheet.plansWithoutCopay.length > 0) {
     const slide4 = pptx.addSlide();
     slide4.background = { color: "FFFFFF" };
 
@@ -455,7 +454,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       ],
     ];
 
-    data.plansWithoutCopay.forEach((plan, index) => {
+    data.mainSheet.plansWithoutCopay.forEach((plan, index) => {
       const isAlt = index % 2 === 1;
       noCopayRows.push([
         { text: plan.name, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 7 } },
@@ -484,8 +483,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       align: "center",
     });
 
-    if (data.ageBasedPricingNoCopay && data.ageBasedPricingNoCopay.length > 0) {
-      const planColumns = Object.keys(data.ageBasedPricingNoCopay[0]).filter(key => key !== 'ageRange');
+    if (data.mainSheet.ageBasedPricingNoCopay && data.mainSheet.ageBasedPricingNoCopay.length > 0) {
+      const planColumns = Object.keys(data.mainSheet.ageBasedPricingNoCopay[0]).filter(key => key !== 'ageRange');
 
       const ageRows: any[] = [
         [
@@ -497,7 +496,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
         ],
       ];
 
-      data.ageBasedPricingNoCopay.forEach((row, rowIndex) => {
+      data.mainSheet.ageBasedPricingNoCopay.forEach((row, rowIndex) => {
         const isAlt = rowIndex % 2 === 1;
         ageRows.push([
           { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: isAlt ? lightTeal : "FFFFFF" }, fontSize: 6 } },
@@ -535,8 +534,8 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
     );
   }
 
-  // ==================== PRODUTOS G - SEM COPARTICIPAÇÃO ====================
-  if (includeProductosG && data.plansWithoutCopayG && data.plansWithoutCopayG.length > 0) {
+  // ==================== PRODUTOS G - COM COPARTICIPAÇÃO ====================
+  if (data.productsG && data.productsG.plansWithCopay && data.productsG.plansWithCopay.length > 0) {
     const slideG1 = pptx.addSlide();
     slideG1.background = { color: "FFFFFF" };
 
@@ -545,90 +544,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       fontSize: 9, color: "333333", align: "right",
     });
 
-    slideG1.addText("PRODUTOS G - Planos sem Coparticipação", {
-      x: 0.5, y: 0.5, w: 7.26, h: 0.4,
-      fontSize: 14, bold: true, color: kliniOrange, align: "center",
-    });
-
-    const noCopayRowsG: any[] = [
-      [
-        { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
-        { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
-        { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
-        { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
-      ],
-    ];
-
-    data.plansWithoutCopayG.forEach((plan, idx) => {
-      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightTeal;
-      noCopayRowsG.push([
-        { text: plan.name, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-        { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
-      ]);
-    });
-
-    slideG1.addTable(noCopayRowsG, {
-      x: 0.5, y: 1.1, w: 7.26,
-      border: { pt: 0.5, color: "CCCCCC" },
-      align: "center",
-    });
-
-    if (data.ageBasedPricingNoCopayG && data.ageBasedPricingNoCopayG.length > 0) {
-      slideG1.addText("Valores por Faixa Etária - SEM Coparticipação", {
-        x: 0.5, y: 3.0, w: 7.26, h: 0.35,
-        fontSize: 11, bold: true, color: kliniOrange, align: "center",
-      });
-
-      const planColumnsG = Object.keys(data.ageBasedPricingNoCopayG[0]).filter((key) => key !== "ageRange");
-      const ageRowsNoCopayG: any[] = [
-        [
-          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
-          ...planColumnsG.map((planName) => ({
-            text: planName.substring(0, 12),
-            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
-          })),
-        ],
-      ];
-
-      data.ageBasedPricingNoCopayG.forEach((row, idx) => {
-        const bgColor = idx % 2 === 0 ? "FFFFFF" : lightTeal;
-        ageRowsNoCopayG.push([
-          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 } },
-          ...planColumnsG.map((col) => ({
-            text: row[col] ? formatCurrency(row[col]) : "-",
-            options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 },
-          })),
-        ]);
-      });
-
-      const colWidthG = (7.26 - 0.8) / planColumnsG.length;
-      slideG1.addTable(ageRowsNoCopayG, {
-        x: 0.5, y: 3.5, w: 7.26,
-        border: { pt: 0.5, color: "CCCCCC" },
-        align: "center",
-        colW: [0.8, ...Array(planColumnsG.length).fill(colWidthG)],
-      });
-    }
-
-    slideG1.addText("Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora.", {
-      x: 0.5, y: 10.8, w: 7.26, h: 0.7,
-      fontSize: 6, color: "999999", align: "center", valign: "top",
-    });
-  }
-
-  // ==================== PRODUTOS G - COM COPARTICIPAÇÃO ====================
-  if (includeProductosG && data.plansWithCopayG && data.plansWithCopayG.length > 0) {
-    const slideG2 = pptx.addSlide();
-    slideG2.background = { color: "FFFFFF" };
-
-    slideG2.addText("ANS - Nº 42.202-9", {
-      x: 6.5, y: 0.2, w: 1.5, h: 0.3,
-      fontSize: 9, color: "333333", align: "right",
-    });
-
-    slideG2.addText("PRODUTOS G - Planos com Coparticipação", {
+    slideG1.addText("PRODUTOS G - Planos com Coparticipação", {
       x: 0.5, y: 0.5, w: 7.26, h: 0.4,
       fontSize: 14, bold: true, color: kliniOrange, align: "center",
     });
@@ -642,7 +558,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       ],
     ];
 
-    data.plansWithCopayG.forEach((plan, idx) => {
+    data.productsG.plansWithCopay.forEach((plan, idx) => {
       const bgColor = idx % 2 === 0 ? "FFFFFF" : lightTeal;
       copayRowsG.push([
         { text: plan.name, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
@@ -652,20 +568,103 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       ]);
     });
 
-    slideG2.addTable(copayRowsG, {
+    slideG1.addTable(copayRowsG, {
       x: 0.5, y: 1.1, w: 7.26,
       border: { pt: 0.5, color: "CCCCCC" },
       align: "center",
     });
 
-    if (data.ageBasedPricingCopayG && data.ageBasedPricingCopayG.length > 0) {
-      slideG2.addText("Valores por Faixa Etária - COM Coparticipação", {
+    if (data.productsG.ageBasedPricingCopay && data.productsG.ageBasedPricingCopay.length > 0) {
+      slideG1.addText("Valores por Faixa Etária - COM Coparticipação", {
         x: 0.5, y: 3.0, w: 7.26, h: 0.35,
         fontSize: 11, bold: true, color: kliniOrange, align: "center",
       });
 
-      const planColumnsG2 = Object.keys(data.ageBasedPricingCopayG[0]).filter((key) => key !== "ageRange");
+      const planColumnsG = Object.keys(data.productsG.ageBasedPricingCopay[0]).filter((key) => key !== "ageRange");
       const ageRowsCopayG: any[] = [
+        [
+          { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
+          ...planColumnsG.map((planName) => ({
+            text: planName.substring(0, 12),
+            options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
+          })),
+        ],
+      ];
+
+      data.productsG.ageBasedPricingCopay.forEach((row, idx) => {
+        const bgColor = idx % 2 === 0 ? "FFFFFF" : lightTeal;
+        ageRowsCopayG.push([
+          { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 } },
+          ...planColumnsG.map((col) => ({
+            text: row[col] ? formatCurrency(row[col]) : "-",
+            options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 },
+          })),
+        ]);
+      });
+
+      const colWidthG = (7.26 - 0.8) / planColumnsG.length;
+      slideG1.addTable(ageRowsCopayG, {
+        x: 0.5, y: 3.5, w: 7.26,
+        border: { pt: 0.5, color: "CCCCCC" },
+        align: "center",
+        colW: [0.8, ...Array(planColumnsG.length).fill(colWidthG)],
+      });
+    }
+
+    slideG1.addText("Esta proposta foi elaborada levando em consideração as informações fornecidas através do formulário de cotação enviado pela Corretora.", {
+      x: 0.5, y: 10.8, w: 7.26, h: 0.7,
+      fontSize: 6, color: "999999", align: "center", valign: "top",
+    });
+  }
+
+  // ==================== PRODUTOS G - SEM COPARTICIPAÇÃO ====================
+  if (data.productsG && data.productsG.plansWithoutCopay && data.productsG.plansWithoutCopay.length > 0) {
+    const slideG2 = pptx.addSlide();
+    slideG2.background = { color: "FFFFFF" };
+
+    slideG2.addText("ANS - Nº 42.202-9", {
+      x: 6.5, y: 0.2, w: 1.5, h: 0.3,
+      fontSize: 9, color: "333333", align: "right",
+    });
+
+    slideG2.addText("PRODUTOS G - Planos sem Coparticipação", {
+      x: 0.5, y: 0.5, w: 7.26, h: 0.4,
+      fontSize: 14, bold: true, color: kliniOrange, align: "center",
+    });
+
+    const noCopayRowsG: any[] = [
+      [
+        { text: "PLANO", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "CÓDIGO ANS", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "PER CAPITA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+        { text: "FATURA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 8 } },
+      ],
+    ];
+
+    data.productsG.plansWithoutCopay.forEach((plan, idx) => {
+      const bgColor = idx % 2 === 0 ? "FFFFFF" : lightTeal;
+      noCopayRowsG.push([
+        { text: plan.name, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: String(plan.ansCode), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: formatCurrency(plan.perCapita), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+        { text: formatCurrency(plan.estimatedInvoice), options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 7 } },
+      ]);
+    });
+
+    slideG2.addTable(noCopayRowsG, {
+      x: 0.5, y: 1.1, w: 7.26,
+      border: { pt: 0.5, color: "CCCCCC" },
+      align: "center",
+    });
+
+    if (data.productsG.ageBasedPricingNoCopay && data.productsG.ageBasedPricingNoCopay.length > 0) {
+      slideG2.addText("Valores por Faixa Etária - SEM Coparticipação", {
+        x: 0.5, y: 3.0, w: 7.26, h: 0.35,
+        fontSize: 11, bold: true, color: kliniOrange, align: "center",
+      });
+
+      const planColumnsG2 = Object.keys(data.productsG.ageBasedPricingNoCopay[0]).filter((key) => key !== "ageRange");
+      const ageRowsNoCopayG: any[] = [
         [
           { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
           ...planColumnsG2.map((planName) => ({
@@ -675,9 +674,9 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
         ],
       ];
 
-      data.ageBasedPricingCopayG.forEach((row, idx) => {
+      data.productsG.ageBasedPricingNoCopay.forEach((row, idx) => {
         const bgColor = idx % 2 === 0 ? "FFFFFF" : lightTeal;
-        ageRowsCopayG.push([
+        ageRowsNoCopayG.push([
           { text: row.ageRange, options: { bold: false, color: "333333", fill: { color: bgColor }, fontSize: 6 } },
           ...planColumnsG2.map((col) => ({
             text: row[col] ? formatCurrency(row[col]) : "-",
@@ -687,7 +686,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null,
       });
 
       const colWidthG2 = (7.26 - 0.8) / planColumnsG2.length;
-      slideG2.addTable(ageRowsCopayG, {
+      slideG2.addTable(ageRowsNoCopayG, {
         x: 0.5, y: 3.5, w: 7.26,
         border: { pt: 0.5, color: "CCCCCC" },
         align: "center",
