@@ -359,9 +359,12 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       align: "center",
     });
 
+    const firstTableHeight = 0.4 + (copayRows.length - 1) * 0.25;
+    const secondSectionY = 1.2 + firstTableHeight + 0.4;
+
     slide3.addText("Valores por Faixa Etária - COM Coparticipação", {
       x: 0.5,
-      y: 3.8,
+      y: secondSectionY,
       w: 7.26,
       h: 0.4,
       fontSize: 18,
@@ -398,7 +401,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
       slide3.addTable(ageRows, {
         x: 0.5,
-        y: 4.4,
+        y: secondSectionY + 0.5,
         w: 7.26,
         border: { pt: 0.5, color: "CCCCCC" },
         align: "center",
@@ -474,9 +477,12 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       align: "center",
     });
 
+    const firstTableHeight = 0.4 + (noCopayRows.length - 1) * 0.25;
+    const secondSectionY = 1.2 + firstTableHeight + 0.4;
+
     slide4.addText("Valores por Faixa Etária - SEM Coparticipação", {
       x: 0.5,
-      y: 3.8,
+      y: secondSectionY,
       w: 7.26,
       h: 0.4,
       fontSize: 18,
@@ -513,7 +519,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
       slide4.addTable(ageRows, {
         x: 0.5,
-        y: 4.4,
+        y: secondSectionY + 0.5,
         w: 7.26,
         border: { pt: 0.5, color: "CCCCCC" },
         align: "center",
@@ -576,9 +582,12 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       align: "center",
     });
 
+    const firstTableHeight = 0.4 + (copayRowsG.length - 1) * 0.25;
+    const secondSectionY = 1.1 + firstTableHeight + 0.4;
+
     if (data.productsG.ageBasedPricingCopay && data.productsG.ageBasedPricingCopay.length > 0) {
       slideG1.addText("Valores por Faixa Etária - COM Coparticipação", {
-        x: 0.5, y: 3.0, w: 7.26, h: 0.35,
+        x: 0.5, y: secondSectionY, w: 7.26, h: 0.35,
         fontSize: 11, bold: true, color: kliniOrange, align: "center",
       });
 
@@ -587,7 +596,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         [
           { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
           ...planColumnsG.map((planName) => ({
-            text: planName.substring(0, 12),
+            text: planName,
             options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
           })),
         ],
@@ -606,7 +615,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
       const colWidthG = (7.26 - 0.8) / planColumnsG.length;
       slideG1.addTable(ageRowsCopayG, {
-        x: 0.5, y: 3.5, w: 7.26,
+        x: 0.5, y: secondSectionY + 0.4, w: 7.26,
         border: { pt: 0.5, color: "CCCCCC" },
         align: "center",
         colW: [0.8, ...Array(planColumnsG.length).fill(colWidthG)],
@@ -659,9 +668,12 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
       align: "center",
     });
 
+    const firstTableHeight = 0.4 + (noCopayRowsG.length - 1) * 0.25;
+    const secondSectionY = 1.1 + firstTableHeight + 0.4;
+
     if (data.productsG.ageBasedPricingNoCopay && data.productsG.ageBasedPricingNoCopay.length > 0) {
       slideG2.addText("Valores por Faixa Etária - SEM Coparticipação", {
-        x: 0.5, y: 3.0, w: 7.26, h: 0.35,
+        x: 0.5, y: secondSectionY, w: 7.26, h: 0.35,
         fontSize: 11, bold: true, color: kliniOrange, align: "center",
       });
 
@@ -670,7 +682,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
         [
           { text: "FAIXA ETÁRIA", options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 } },
           ...planColumnsG2.map((planName) => ({
-            text: planName.substring(0, 12),
+            text: planName,
             options: { bold: true, color: "FFFFFF", fill: { color: kliniTeal }, fontSize: 6 },
           })),
         ],
@@ -689,7 +701,7 @@ export const exportToPPTX = async (data: ExportData, coverImage?: string | null)
 
       const colWidthG2 = (7.26 - 0.8) / planColumnsG2.length;
       slideG2.addTable(ageRowsNoCopayG, {
-        x: 0.5, y: 3.5, w: 7.26,
+        x: 0.5, y: secondSectionY + 0.4, w: 7.26,
         border: { pt: 0.5, color: "CCCCCC" },
         align: "center",
         colW: [0.8, ...Array(planColumnsG2.length).fill(colWidthG2)],
