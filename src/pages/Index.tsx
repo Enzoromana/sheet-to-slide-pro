@@ -14,6 +14,15 @@ import { CoverImageUpload } from "@/components/CoverImageUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 import { DEFAULT_COVER_IMAGE } from "@/utils/defaultCoverImage";
 import { KLINI_LOGO } from "@/assets/kliniLogo";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+interface SheetData {
+  plansWithCopay: any[];
+  plansWithoutCopay: any[];
+  ageBasedPricingCopay: any[];
+  ageBasedPricingNoCopay: any[];
+}
 
 interface ParsedData {
   companyName: string;
@@ -22,50 +31,117 @@ interface ParsedData {
   emissionDate: string;
   validityDate: string;
   demographics: any[];
-  plansWithCopay: any[];
-  plansWithoutCopay: any[];
-  ageBasedPricingCopay: any[];
-  ageBasedPricingNoCopay: any[];
-  // PRODUTOS G
-  plansWithCopayG?: any[];
-  plansWithoutCopayG?: any[];
-  ageBasedPricingCopayG?: any[];
-  ageBasedPricingNoCopayG?: any[];
+  mainSheet: SheetData;
+  productsG?: SheetData;
 }
 
 const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER_IMAGE);
-  const [includeProductosG, setIncludeProductosG] = useState(false);
+  const [includeProductsG, setIncludeProductsG] = useState(false);
   const { toast } = useToast();
+
+  const parseCurrency = (value: any): number => {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const cleaned = value.replace(/[R$\s.]/g, '').replace(',', '.');
+      const parsed = parseFloat(cleaned);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  };
+
+  const parseKliniSheet = (worksheet: XLSX.WorkSheet): SheetData => {
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+
+    // Parse plans WITH copay (rows 27-34 in Excel = indices 26-33)
+    const allPlansWithCopay: any[] = [];
+    for (let i = 26; i <= 33; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const planName = String(row[1]).trim();
+      if (!planName.startsWith("KLINI")) continue;
+      allPlansWithCopay.push({
+        name: planName,
+        ansCode: String(row[4] || '').trim(),
+        perCapita: parseCurrency(row[5]) || 0,
+        estimatedInvoice: parseCurrency(row[6]) || 0,
+      });
+    }
+
+    // Parse age-based pricing WITH copay (header in row 40 = index 39, data rows 42-51 = indices 41-50)
+    // Adjusted row indices to match the identified template
+    const copayAgeHeader = jsonData[38] as any[];
+    const copayPlanNames = (copayAgeHeader || []).slice(2).filter((name: string) => name && String(name).trim() !== "");
+    const allAgeBasedPricingCopay: any[] = [];
+    for (let i = 40; i <= 49; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const ageRange = String(row[1]).trim();
+      if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
+      const pricing: any = { ageRange };
+      copayPlanNames.forEach((planName: string, idx: number) => {
+        pricing[planName] = parseCurrency(row[idx + 2]) || 0;
+      });
+      allAgeBasedPricingCopay.push(pricing);
+    }
+
+    // Parse plans WITHOUT copay (rows 61-68 in Excel = indices 59-66)
+    const allPlansWithoutCopay: any[] = [];
+    for (let i = 58; i <= 65; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const planName = String(row[1]).trim();
+      if (!planName.startsWith("KLINI")) continue;
+      allPlansWithoutCopay.push({
+        name: planName,
+        ansCode: String(row[4] || '').trim(),
+        perCapita: parseCurrency(row[5]) || 0,
+        estimatedInvoice: parseCurrency(row[6]) || 0,
+      });
+    }
+
+    // Parse age-based pricing WITHOUT copay (header in row 76 = index 75, data rows 77-86 = indices 76-85)
+    const noCopayAgeHeader = jsonData[70] as any[];
+    const noCopayPlanNames = (noCopayAgeHeader || []).slice(2).filter((name: string) => name && String(name).trim() !== "");
+    const allAgeBasedPricingNoCopay: any[] = [];
+    for (let i = 72; i <= 81; i++) {
+      const row = jsonData[i] as any[];
+      if (!row || !row[1]) continue;
+      const ageRange = String(row[1]).trim();
+      if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
+      const pricing: any = { ageRange };
+      noCopayPlanNames.forEach((planName: string, idx: number) => {
+        pricing[planName] = parseCurrency(row[idx + 2]) || 0;
+      });
+      allAgeBasedPricingNoCopay.push(pricing);
+    }
+
+    return {
+      plansWithCopay: allPlansWithCopay,
+      plansWithoutCopay: allPlansWithoutCopay,
+      ageBasedPricingCopay: allAgeBasedPricingCopay,
+      ageBasedPricingNoCopay: allAgeBasedPricingNoCopay,
+    };
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const parseCurrency = (value: any): number => {
-      if (typeof value === 'number') return value;
-      if (typeof value === 'string') {
-        const cleaned = value.replace(/[R$\s.]/g, '').replace(',', '.');
-        const parsed = parseFloat(cleaned);
-        return isNaN(parsed) ? 0 : parsed;
-      }
-      return 0;
-    };
-
     try {
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data);
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
-      // Parse company info - data is in column B (index 1), rows 2-4 (indices 1-3)
+      // Parse company info (always from first sheet)
       const companyName = (jsonData[1] as any)?.[1] || "";
       const concessionaire = (jsonData[2] as any)?.[1] || "";
       const broker = (jsonData[3] as any)?.[1] || "";
 
-      // Parse demographics (rows 8-17 in Excel = indices 7-16)
-      // Column layout: B=age range, C-D=titular M/F, E-F=dependente M/F, I-J=total M/F, K=total, L=percentage
+      // Parse demographics (always from first sheet)
       const allDemographics: any[] = [];
       for (let i = 7; i <= 16; i++) {
         const row = jsonData[i] as any[];
@@ -87,142 +163,15 @@ const Index = () => {
         });
       }
 
-      // Parse plans WITH copay (rows 27-34 in Excel = indices 26-33)
-      // Column layout: B=name, E=ANS code, F=per capita, G=estimated invoice
-      const allPlansWithCopay: any[] = [];
-      for (let i = 26; i <= 33; i++) {
-        const row = jsonData[i] as any[];
-        if (!row || !row[1]) continue;
-        const planName = String(row[1]).trim();
-        if (!planName.startsWith("KLINI")) continue;
-        allPlansWithCopay.push({
-          name: planName,
-          ansCode: String(row[4] || '').trim(),
-          perCapita: parseCurrency(row[5]) || 0,
-          estimatedInvoice: parseCurrency(row[6]) || 0,
-        });
-      }
+      const mainSheetData = parseKliniSheet(worksheet);
+      let productsGData: SheetData | undefined = undefined;
 
-      // Parse age-based pricing WITH copay (header in row 41 = index 40, data rows 42-51 = indices 41-50)
-      // Header starts at column 2 (index 1)
-      const copayAgeHeader = jsonData[38] as any[];
-      const copayPlanNames = copayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
-      const allAgeBasedPricingCopay: any[] = [];
-      for (let i = 40; i <= 49; i++) {
-        const row = jsonData[i] as any[];
-        if (!row || !row[1]) continue;
-        const ageRange = String(row[1]).trim();
-        if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
-        const pricing: any = { ageRange };
-        copayPlanNames.forEach((planName: string, idx: number) => {
-          pricing[planName] = parseCurrency(row[idx + 2]) || 0;
-        });
-        allAgeBasedPricingCopay.push(pricing);
-      }
-
-      // Parse plans WITHOUT copay (rows 61-68 in Excel = indices 59-66)
-      // Column layout: B=name, E=ANS code, F=per capita, G=estimated invoice
-      const allPlansWithoutCopay: any[] = [];
-      for (let i = 58; i <= 65; i++) {
-        const row = jsonData[i] as any[];
-        if (!row || !row[1]) continue;
-        const planName = String(row[1]).trim();
-        if (!planName.startsWith("KLINI")) continue;
-        allPlansWithoutCopay.push({
-          name: planName,
-          ansCode: String(row[4] || '').trim(),
-          perCapita: parseCurrency(row[5]) || 0,
-          estimatedInvoice: parseCurrency(row[6]) || 0,
-        });
-      }
-
-      // Parse age-based pricing WITHOUT copay (header in row 76 = index 75, data rows 77-86 = indices 76-85)
-      // Header starts at column 2 (index 1)
-      const noCopayAgeHeader = jsonData[70] as any[];
-      const noCopayPlanNames = noCopayAgeHeader.slice(2).filter((name: string) => name && String(name).trim() !== "");
-      const allAgeBasedPricingNoCopay: any[] = [];
-      for (let i = 72; i <= 81; i++) {
-        const row = jsonData[i] as any[];
-        if (!row || !row[1]) continue;
-        const ageRange = String(row[1]).trim();
-        if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
-        const pricing: any = { ageRange };
-        noCopayPlanNames.forEach((planName: string, idx: number) => {
-          pricing[planName] = parseCurrency(row[idx + 2]) || 0;
-        });
-        allAgeBasedPricingNoCopay.push(pricing);
-      }
-
-      // ==================== PARSE PRODUTOS G ====================
-      let plansWithCopayG: any[] = [];
-      let plansWithoutCopayG: any[] = [];
-      let ageBasedPricingCopayG: any[] = [];
-      let ageBasedPricingNoCopayG: any[] = [];
-
-      if (workbook.SheetNames.includes("PRODUTOS G")) {
-        const sheetG = workbook.Sheets["PRODUTOS G"];
-        const jsonDataG = XLSX.utils.sheet_to_json(sheetG, { header: 1, defval: "" }) as any[][];
-
-        // Plans WITH copay - PRODUTOS G
-        for (let i = 26; i <= 33; i++) {
-          const row = jsonDataG[i] as any[];
-          if (!row || !row[1]) continue;
-          const planName = String(row[1]).trim();
-          if (!planName.startsWith("KLINI")) continue;
-          plansWithCopayG.push({
-            name: planName,
-            ansCode: String(row[4] || '').trim(),
-            perCapita: parseCurrency(row[5]) || 0,
-            estimatedInvoice: parseCurrency(row[6]) || 0,
-          });
-        }
-
-        // Age pricing WITH copay - PRODUTOS G
-        const copayAgeHeaderG = jsonDataG[38] as any[];
-        if (copayAgeHeaderG) {
-          const copayPlanNamesG = copayAgeHeaderG.slice(2).filter((name: string) => name && String(name).trim() !== "");
-          for (let i = 40; i <= 49; i++) {
-            const row = jsonDataG[i] as any[];
-            if (!row || !row[1]) continue;
-            const ageRange = String(row[1]).trim();
-            if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
-            const pricing: any = { ageRange };
-            copayPlanNamesG.forEach((planName: string, idx: number) => {
-              pricing[planName] = parseCurrency(row[idx + 2]) || 0;
-            });
-            ageBasedPricingCopayG.push(pricing);
-          }
-        }
-
-        // Plans WITHOUT copay - PRODUTOS G
-        for (let i = 58; i <= 65; i++) {
-          const row = jsonDataG[i] as any[];
-          if (!row || !row[1]) continue;
-          const planName = String(row[1]).trim();
-          if (!planName.startsWith("KLINI")) continue;
-          plansWithoutCopayG.push({
-            name: planName,
-            ansCode: String(row[4] || '').trim(),
-            perCapita: parseCurrency(row[5]) || 0,
-            estimatedInvoice: parseCurrency(row[6]) || 0,
-          });
-        }
-
-        // Age pricing WITHOUT copay - PRODUTOS G
-        const noCopayAgeHeaderG = jsonDataG[70] as any[];
-        if (noCopayAgeHeaderG) {
-          const noCopayPlanNamesG = noCopayAgeHeaderG.slice(2).filter((name: string) => name && String(name).trim() !== "");
-          for (let i = 72; i <= 81; i++) {
-            const row = jsonDataG[i] as any[];
-            if (!row || !row[1]) continue;
-            const ageRange = String(row[1]).trim();
-            if (!ageRange.match(/\d+\s*-\s*\d+|59\+/)) continue;
-            const pricing: any = { ageRange };
-            noCopayPlanNamesG.forEach((planName: string, idx: number) => {
-              pricing[planName] = parseCurrency(row[idx + 2]) || 0;
-            });
-            ageBasedPricingNoCopayG.push(pricing);
-          }
+      if (includeProductsG) {
+        const productsGSheetName = workbook.SheetNames.find(name =>
+          name.toUpperCase().includes("PRODUTOS G")
+        );
+        if (productsGSheetName) {
+          productsGData = parseKliniSheet(workbook.Sheets[productsGSheetName]);
         }
       }
 
@@ -236,14 +185,8 @@ const Index = () => {
         emissionDate,
         validityDate,
         demographics: allDemographics,
-        plansWithCopay: allPlansWithCopay,
-        plansWithoutCopay: allPlansWithoutCopay,
-        ageBasedPricingCopay: allAgeBasedPricingCopay,
-        ageBasedPricingNoCopay: allAgeBasedPricingNoCopay,
-        plansWithCopayG,
-        plansWithoutCopayG,
-        ageBasedPricingCopayG,
-        ageBasedPricingNoCopayG,
+        mainSheet: mainSheetData,
+        productsG: productsGData,
       });
 
       toast({
@@ -269,7 +212,7 @@ const Index = () => {
         description: "Aguarde enquanto preparamos sua apresentação.",
       });
 
-      await exportToPPTX(parsedData, coverImage, includeProductosG);
+      await exportToPPTX(parsedData, coverImage);
 
       toast({
         title: "PowerPoint gerado com sucesso!",
@@ -403,6 +346,16 @@ const Index = () => {
                       </div>
                     </div>
                   </Button>
+                  <div className="flex items-center space-x-2 pt-2">
+                    <Checkbox
+                      id="products-g"
+                      checked={includeProductsG}
+                      onCheckedChange={(checked) => setIncludeProductsG(checked as boolean)}
+                    />
+                    <Label htmlFor="products-g" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      Incluir aba "Produtos G" se disponível
+                    </Label>
+                  </div>
                 </div>
 
                 {/* Cover Upload */}
@@ -417,21 +370,6 @@ const Index = () => {
               {/* Export Buttons */}
               {parsedData && (
                 <div className="pt-6 border-t border-gray-200">
-                  {/* Checkbox PRODUTOS G */}
-                  {parsedData?.plansWithCopayG && parsedData.plansWithCopayG.length > 0 && (
-                    <div className="flex items-center gap-2 mb-4">
-                      <input
-                        type="checkbox"
-                        id="includeProductosG"
-                        checked={includeProductosG}
-                        onChange={(e) => setIncludeProductosG(e.target.checked)}
-                        className="w-4 h-4 accent-[#1D7874]"
-                      />
-                      <label htmlFor="includeProductosG" className="text-sm font-medium text-gray-700">
-                        Incluir PRODUTOS G na apresentação
-                      </label>
-                    </div>
-                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Button
                       onClick={handleExportPDF}
@@ -481,40 +419,87 @@ const Index = () => {
                 <DemographicsTable data={parsedData.demographics} />
               </Card>
 
-              {parsedData.plansWithCopay.length > 0 && (
+              {parsedData.mainSheet.plansWithCopay.length > 0 && (
                 <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
                   <PricingTable
                     title="Planos com Coparticipação"
-                    plans={parsedData.plansWithCopay}
+                    plans={parsedData.mainSheet.plansWithCopay}
                   />
                 </Card>
               )}
 
-              {parsedData.plansWithoutCopay.length > 0 && (
+              {parsedData.mainSheet.plansWithoutCopay.length > 0 && (
                 <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
                   <PricingTable
                     title="Planos sem Coparticipação"
-                    plans={parsedData.plansWithoutCopay}
+                    plans={parsedData.mainSheet.plansWithoutCopay}
                   />
                 </Card>
               )}
 
-              {parsedData.ageBasedPricingCopay.length > 0 && (
+              {parsedData.mainSheet.ageBasedPricingCopay.length > 0 && (
                 <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
                   <AgeBasedPricingTable
-                    data={parsedData.ageBasedPricingCopay}
+                    data={parsedData.mainSheet.ageBasedPricingCopay}
                     title="Valores por Faixa Etária - COM Coparticipação"
                   />
                 </Card>
               )}
 
-              {parsedData.ageBasedPricingNoCopay.length > 0 && (
+              {parsedData.mainSheet.ageBasedPricingNoCopay.length > 0 && (
                 <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
                   <AgeBasedPricingTable
-                    data={parsedData.ageBasedPricingNoCopay}
+                    data={parsedData.mainSheet.ageBasedPricingNoCopay}
                     title="Valores por Faixa Etária - SEM Coparticipação"
                   />
                 </Card>
+              )}
+
+              {/* Seção Produtos G */}
+              {parsedData.productsG && (
+                <div className="space-y-6 pt-8 border-t-2 border-dashed border-white/20">
+                  <div className="text-center py-4">
+                    <h2 className="text-3xl font-bold text-white drop-shadow-lg">
+                      📦 Produtos G
+                    </h2>
+                  </div>
+
+                  {parsedData.productsG.plansWithCopay.length > 0 && (
+                    <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
+                      <PricingTable
+                        title="Produtos G - Com Coparticipação"
+                        plans={parsedData.productsG.plansWithCopay}
+                      />
+                    </Card>
+                  )}
+
+                  {parsedData.productsG.plansWithoutCopay.length > 0 && (
+                    <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
+                      <PricingTable
+                        title="Produtos G - Sem Coparticipação"
+                        plans={parsedData.productsG.plansWithoutCopay}
+                      />
+                    </Card>
+                  )}
+
+                  {parsedData.productsG.ageBasedPricingCopay.length > 0 && (
+                    <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
+                      <AgeBasedPricingTable
+                        data={parsedData.productsG.ageBasedPricingCopay}
+                        title="Produtos G - COM Coparticipação - Faixa Etária"
+                      />
+                    </Card>
+                  )}
+
+                  {parsedData.productsG.ageBasedPricingNoCopay.length > 0 && (
+                    <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8">
+                      <AgeBasedPricingTable
+                        data={parsedData.productsG.ageBasedPricingNoCopay}
+                        title="Produtos G - SEM Coparticipação - Faixa Etária"
+                      />
+                    </Card>
+                  )}
+                </div>
               )}
 
               <Card className="backdrop-blur-xl bg-white/95 border-none shadow-2xl p-8 text-center">
