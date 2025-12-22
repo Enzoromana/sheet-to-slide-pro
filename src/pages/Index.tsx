@@ -13,6 +13,7 @@ import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
 import { LogoUpload as CoverImageUpload } from "@/components/LogoUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
 import KLINI_LOGO from "@/assets/logo-klini.webp";
+import DEFAULT_COVER from "@/assets/default-cover.png";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
@@ -37,7 +38,7 @@ interface ParsedData {
 const Index = () => {
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER);
   const [includeProductsG, setIncludeProductsG] = useState(false);
   const { toast } = useToast();
 
