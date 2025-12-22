@@ -10,10 +10,9 @@ import { PricingTable } from "@/components/PricingTable";
 import { DemographicsTable } from "@/components/DemographicsTable";
 import { CompanyHeader } from "@/components/CompanyHeader";
 import { AgeBasedPricingTable } from "@/components/AgeBasedPricingTable";
-import { CoverImageUpload } from "@/components/CoverImageUpload";
+import { LogoUpload as CoverImageUpload } from "@/components/LogoUpload";
 import { exportToPPTX } from "@/utils/pptxExport";
-import { DEFAULT_COVER_IMAGE } from "@/utils/defaultCoverImage";
-import { KLINI_LOGO } from "@/assets/kliniLogo";
+import KLINI_LOGO from "@/assets/logo-klini.webp";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
@@ -37,7 +36,7 @@ interface ParsedData {
 
 const Index = () => {
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(DEFAULT_COVER_IMAGE);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const [includeProductsG, setIncludeProductsG] = useState(false);
   const { toast } = useToast();
 
@@ -363,7 +362,7 @@ const Index = () => {
                   <label className="block text-sm font-semibold text-gray-700 uppercase tracking-wide">
                     🎨 Capa da Proposta
                   </label>
-                  <CoverImageUpload onImageChange={handleCoverImageChange} currentImage={coverImage} />
+                  <CoverImageUpload onLogoChange={handleCoverImageChange} currentLogo={coverImage} />
                 </div>
               </div>
 
