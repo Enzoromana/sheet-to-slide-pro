@@ -196,8 +196,22 @@ const Index = () => {
     }
 
     try {
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
+      // 1. Identificar planilha principal (ACIMA DE 100 VIDAS)
+      // Procura por nome específico ou usa a primeira que não seja "Tabela de preços" ou "PRODUTOS G"
+      let mainSheetName = workbook.SheetNames.find(name =>
+        name.toUpperCase().includes("ACIMA DE 100") ||
+        name.toUpperCase().includes("100 VIDAS")
+      );
+
+      if (!mainSheetName) {
+        // Fallback: primeira planilha que não seja de dados auxiliares
+        mainSheetName = workbook.SheetNames.find(name =>
+          !name.toUpperCase().includes("TABELA DE PREÇO") &&
+          !name.toUpperCase().includes("PRODUTOS G")
+        ) || workbook.SheetNames[0];
+      }
+
+      const worksheet = workbook.Sheets[mainSheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
       // Parse company info (always from first sheet)
@@ -230,13 +244,17 @@ const Index = () => {
       const mainSheetData = parseKliniSheet(worksheet);
       let productsGData: SheetData | undefined = undefined;
 
-      if (includeProductsG) {
-        const productsGSheetName = workbook.SheetNames.find(name =>
-          name.toUpperCase().includes("PRODUTOS G")
-        );
-        if (productsGSheetName) {
-          productsGData = parseKliniSheet(workbook.Sheets[productsGSheetName]);
-        }
+      // 2. Identificar e processar automaticamente "Produtos G" se existir
+      const productsGSheetName = workbook.SheetNames.find(name =>
+        name.toUpperCase().includes("PRODUTOS G")
+      );
+
+      if (productsGSheetName) {
+        productsGData = parseKliniSheet(workbook.Sheets[productsGSheetName]);
+        // Atualiza checkbox visualmente para refletir que foi encontrado
+        setIncludeProductsG(true);
+      } else {
+        setIncludeProductsG(false);
       }
 
       const emissionDate = new Date().toLocaleDateString('pt-BR');
